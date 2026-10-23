@@ -3,6 +3,8 @@ import { TableKit } from '@tiptap/extension-table'
 import { Placeholder } from '@tiptap/extensions'
 import { Markdown } from '@tiptap/markdown'
 import StarterKit from '@tiptap/starter-kit'
+import { MarkdownPaste } from './MarkdownPaste'
+import { TypedTable } from './TypedTable'
 import { WikiLink } from './WikiLink'
 
 export const extensions = [
@@ -15,5 +17,7 @@ export const extensions = [
   TableKit.configure({ table: { resizable: false } }),
   Placeholder.configure({ placeholder: 'Start writing …' }),
   WikiLink,
+  TypedTable,
+  MarkdownPaste,
   Markdown,
 ]
