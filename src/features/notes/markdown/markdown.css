@@ -1,0 +1,139 @@
+.prose {
+  font: 400 1.125rem/1.7 var(--serif);
+  overflow-wrap: anywhere;
+}
+
+.prose > * + * {
+  margin-top: 0.875em;
+}
+
+.prose :where(h1, h2, h3, h4, h5, h6) {
+  margin: 1.6em 0 0.5em;
+  font-family: var(--serif);
+  font-weight: 500;
+  line-height: 1.2;
+  letter-spacing: -0.01em;
+}
+
+.prose > :first-child {
+  margin-top: 0;
+}
+
+.prose h1 {
+  font-size: 1.75em;
+}
+
+.prose h2 {
+  font-size: 1.4em;
+}
+
+.prose h3 {
+  font-size: 1.2em;
+}
+
+.prose :where(h4, h5, h6) {
+  font-size: 1em;
+}
+
+.prose :where(p, ul, ol, blockquote, pre, table) {
+  margin-bottom: 0;
+}
+
+.prose :where(ul, ol) {
+  padding-left: 1.5em;
+}
+
+.prose li + li {
+  margin-top: 0.25em;
+}
+
+.prose li::marker {
+  color: var(--ink-faint);
+}
+
+.prose .contains-task-list {
+  padding-left: 0;
+  list-style: none;
+}
+
+.prose .task-list-item {
+  display: flex;
+  align-items: baseline;
+  gap: 0.625em;
+}
+
+.prose .task-list-item input {
+  accent-color: var(--accent);
+  translate: 0 0.1em;
+}
+
+.prose a {
+  color: inherit;
+  text-decoration-color: var(--accent);
+  text-underline-offset: 0.2em;
+}
+
+.prose .wikilink {
+  border-bottom: 1px dashed var(--accent);
+  cursor: default;
+}
+
+.prose blockquote {
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 1em;
+  border-left: 2px solid var(--accent);
+  color: var(--ink-soft);
+  font-style: italic;
+}
+
+.prose code {
+  padding: 0.1em 0.35em;
+  border-radius: 2px;
+  background: var(--paper-sunk);
+  font: 400 0.85em var(--mono);
+}
+
+.prose pre {
+  padding: 0.875em 1em;
+  overflow-x: auto;
+  border: 1px solid var(--rule);
+  border-radius: 2px;
+  background: var(--paper-sunk);
+  line-height: 1.5;
+}
+
+.prose pre code {
+  padding: 0;
+  background: none;
+}
+
+.prose hr {
+  height: 0;
+  margin: 2em 0;
+  border: 0;
+  border-top: 1px solid var(--rule);
+}
+
+.prose table {
+  display: block;
+  max-width: 100%;
+  overflow-x: auto;
+  border-collapse: collapse;
+  font-size: 0.9em;
+}
+
+.prose :where(th, td) {
+  padding: 0.4em 0.75em;
+  border: 1px solid var(--rule);
+  text-align: left;
+}
+
+.prose th {
+  background: var(--paper-sunk);
+  font-weight: 500;
+}
+
+.prose img {
+  max-width: 100%;
+}

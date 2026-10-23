@@ -1,0 +1,155 @@
+.note-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.note {
+  width: 100%;
+  max-width: 44rem;
+  margin: 0 auto;
+  padding: 1rem 1rem 6rem;
+}
+
+.note-bar {
+  position: sticky;
+  top: 0;
+  z-index: 5;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem 1rem;
+  margin: 0 -1rem 2rem;
+  padding: 0.75rem 1rem;
+  background: var(--paper);
+}
+
+.note-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-width: 0;
+  color: var(--ink-soft);
+  font-size: 0.9375rem;
+  text-decoration: none;
+}
+
+.note-back span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.note-back:hover {
+  color: var(--ink);
+}
+
+.note-tools {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.save-status {
+  margin-right: 0.25rem;
+  color: var(--ink-faint);
+  font: 400 0.75rem/1 var(--mono);
+  white-space: nowrap;
+}
+
+.save-status[data-error] {
+  color: var(--accent);
+}
+
+.mode-toggle {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+}
+
+.mode-toggle button {
+  padding: 0.25rem 0.625rem;
+  border: 0;
+  border-radius: 2px;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.mode-toggle button:hover {
+  color: var(--ink);
+}
+
+.mode-toggle button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.note-title {
+  margin-bottom: 1.5rem;
+}
+
+.note-title input {
+  width: 100%;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: 400 clamp(2rem, 5vw, 2.75rem) / 1.1 var(--serif);
+  letter-spacing: -0.02em;
+  outline: none;
+}
+
+.note-title input::placeholder,
+.note-body::placeholder {
+  color: var(--ink-faint);
+}
+
+.note-body {
+  display: block;
+  width: 100%;
+  min-height: 60vh;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  font: 400 1.0625rem/1.7 var(--mono);
+  font-size: 0.9375rem;
+  resize: none;
+  outline: none;
+  field-sizing: content;
+  tab-size: 2;
+}
+
+.note-preview {
+  min-height: 60vh;
+}
+
+.note-preview-empty {
+  display: grid;
+  gap: 1rem;
+  justify-items: start;
+  color: var(--ink-soft);
+  font: italic 400 1.125rem/1.4 var(--serif);
+}
+
+.note-preview-empty button {
+  font: 400 1rem var(--sans);
+}
+
+@media (min-width: 52rem) {
+  .note {
+    padding: 1rem 2rem 6rem;
+  }
+
+  .note-bar {
+    margin: 0 -2rem 2.5rem;
+    padding: 1rem 2rem;
+  }
+}
+
+@media (min-width: 72rem) {
+  .note-layout[data-help] {
+    grid-template-columns: minmax(0, 1fr) 20rem;
+  }
+}

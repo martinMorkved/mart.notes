@@ -37,7 +37,8 @@ export function useUpdateNote() {
   return useMutation({
     scope: noteWrites,
     mutationFn: ({ id, patch }: { id: string; folderId: string; patch: UpdateNote }) =>
-      api<Note>('PATCH', `/notes/${id}`, patch),
+      // keepalive lets the last save finish when the tab closes; browsers cap it at 64 kB
+      api<Note>('PATCH', `/notes/${id}`, patch, { keepalive: JSON.stringify(patch).length < 60_000 }),
     onMutate: ({ id, folderId, patch }) => {
       const updatedAt = new Date().toISOString()
       queryClient.setQueryData(noteQuery(id).queryKey, (note) =>
