@@ -13,12 +13,12 @@ app.route('/folders', folderRoutes)
 app.route('/notes', noteRoutes)
 app.route('/trash', trashRoutes)
 
-app.notFound((c) => c.json({ error: 'Finnes ikke' }, 404))
+app.notFound((c) => c.json({ error: 'Not found' }, 404))
 
 app.onError((err, c) => {
   if (err instanceof HTTPException) return err.getResponse()
   console.error(err)
-  return c.json({ error: 'Noe gikk galt på serveren' }, 500)
+  return c.json({ error: 'Something went wrong on the server' }, 500)
 })
 
 export default app

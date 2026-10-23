@@ -33,7 +33,7 @@ export async function ownsFolder(userId: string, id: string) {
   return Boolean(row)
 }
 
-const notFound = { error: 'Fant ikke mappen' }
+const notFound = { error: 'Folder not found' }
 
 export const folderRoutes = new Hono<AppEnv>()
   .use(requireUser)
@@ -52,7 +52,7 @@ export const folderRoutes = new Hono<AppEnv>()
     const userId = c.var.userId
     if (parentId && !(await ownsFolder(userId, parentId))) return c.json(notFound, 404)
 
-    // Slettede søsken tas med, så en gjenopprettet mappe ikke kolliderer på posisjon
+    // Includes trashed siblings so a restored folder can't collide on position
     const [last] = await db
       .select({ position: folders.position })
       .from(folders)

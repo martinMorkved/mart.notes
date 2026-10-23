@@ -12,7 +12,7 @@ import {
   uuid,
 } from 'drizzle-orm/pg-core'
 
-// fractional-indexing sorterer etter tegnkode, så kolonnen trenger C-kollasjon
+// fractional-indexing compares by code point, so the column needs the C collation
 const sortKey = customType<{ data: string }>({
   dataType: () => 'text collate "C"',
 })
@@ -89,7 +89,7 @@ export const verification = pgTable(
   (t) => [index().on(t.identifier)],
 )
 
-// Appen
+// App
 
 export const folders = pgTable(
   'folders',

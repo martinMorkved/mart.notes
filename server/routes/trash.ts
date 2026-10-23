@@ -5,8 +5,8 @@ import { db } from '../db'
 import { folders, notes } from '../db/schema'
 import { type AppEnv, requireUser } from '../env'
 
-// En mappe og innholdet slettes med samme deleted_at. Det er det som binder en sletting
-// sammen, slik at gjenoppretting tar med akkurat det som forsvant samtidig.
+// A folder and its contents are trashed with the same deleted_at. That timestamp is what ties
+// one deletion together, so a restore brings back exactly what disappeared at the same time.
 
 export const trashRoutes = new Hono<AppEnv>()
   .use(requireUser)
@@ -32,7 +32,7 @@ export const trashRoutes = new Hono<AppEnv>()
     return c.json({ folders: folderRows.rows, notes: noteRows.rows })
   })
 
-  // Et element kan ikke ligge under en slettet mappe, så foreldrene hentes tilbake også
+  // Nothing live may sit inside a trashed folder, so the ancestors come back too
   .post('/folders/:id/restore', async (c) => {
     const { rows } = await db.execute<Counts>(sql`
       with recursive target as (
@@ -63,7 +63,7 @@ export const trashRoutes = new Hono<AppEnv>()
       )
       select (select count(*) from rf)::int as folders, (select count(*) from rn)::int as notes
     `)
-    return rows[0].folders ? c.json(rows[0]) : c.json({ error: 'Fant ikke mappen' }, 404)
+    return rows[0].folders ? c.json(rows[0]) : c.json({ error: 'Folder not found' }, 404)
   })
 
   .post('/notes/:id/restore', async (c) => {
@@ -87,7 +87,7 @@ export const trashRoutes = new Hono<AppEnv>()
       )
       select (select count(*) from rf)::int as folders, (select count(*) from rn)::int as notes
     `)
-    return rows[0].notes ? c.json(rows[0]) : c.json({ error: 'Fant ikke notatet' }, 404)
+    return rows[0].notes ? c.json(rows[0]) : c.json({ error: 'Note not found' }, 404)
   })
 
   .delete('/folders/:id', async (c) => {
@@ -101,7 +101,7 @@ export const trashRoutes = new Hono<AppEnv>()
         ),
       )
       .returning({ id: folders.id })
-    return row ? c.body(null, 204) : c.json({ error: 'Fant ikke mappen' }, 404)
+    return row ? c.body(null, 204) : c.json({ error: 'Folder not found' }, 404)
   })
 
   .delete('/notes/:id', async (c) => {
@@ -115,7 +115,7 @@ export const trashRoutes = new Hono<AppEnv>()
         ),
       )
       .returning({ id: notes.id })
-    return row ? c.body(null, 204) : c.json({ error: 'Fant ikke notatet' }, 404)
+    return row ? c.body(null, 204) : c.json({ error: 'Note not found' }, 404)
   })
 
   .delete('/', async (c) => {

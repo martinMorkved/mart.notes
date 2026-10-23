@@ -1,6 +1,6 @@
 import { z } from 'zod'
 
-export const folderName = z.string().trim().min(1, 'Mappen må ha et navn').max(80)
+export const folderName = z.string().trim().min(1, 'Folder name is required').max(80)
 
 export const createFolder = z.object({
   id: z.uuid().optional(),

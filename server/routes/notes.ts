@@ -22,7 +22,7 @@ function liveNote(userId: string, id: string) {
   return and(eq(notes.id, id), eq(notes.userId, userId), isNull(notes.deletedAt))
 }
 
-const notFound = { error: 'Fant ikke notatet' }
+const notFound = { error: 'Note not found' }
 
 export const noteRoutes = new Hono<AppEnv>()
   .use(requireUser)
@@ -30,9 +30,9 @@ export const noteRoutes = new Hono<AppEnv>()
   .post('/', zValidator('json', createNote), async (c) => {
     const { id, folderId, title } = c.req.valid('json')
     const userId = c.var.userId
-    if (!(await ownsFolder(userId, folderId))) return c.json({ error: 'Fant ikke mappen' }, 404)
+    if (!(await ownsFolder(userId, folderId))) return c.json({ error: 'Folder not found' }, 404)
 
-    // Nye notater legges øverst
+    // New notes go on top
     const [first] = await db
       .select({ position: notes.position })
       .from(notes)

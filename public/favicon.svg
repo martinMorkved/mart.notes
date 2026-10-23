@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <style>
+    .p { fill: #f3f0e8; stroke: #1c1a16 }
+    .a { fill: #b8442c }
+    @media (prefers-color-scheme: dark) {
+      .p { fill: #1c1b16; stroke: #ece7da }
+      .a { fill: #e46a4f }
+    }
+  </style>
+  <path class="p" stroke-width="2" d="M6 3h14l6 6v20H6z" />
+  <path class="a" d="M10 15h12v2H10zM10 20h8v2h-8z" />
+</svg>
