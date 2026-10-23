@@ -51,21 +51,8 @@
   color: var(--ink-faint);
 }
 
-.prose .contains-task-list {
-  padding-left: 0;
-  list-style: none;
-}
 
-.prose .task-list-item {
-  display: flex;
-  align-items: baseline;
-  gap: 0.625em;
-}
 
-.prose .task-list-item input {
-  accent-color: var(--accent);
-  translate: 0 0.1em;
-}
 
 .prose a {
   color: inherit;
@@ -76,6 +63,11 @@
 .prose .wikilink {
   border-bottom: 1px dashed var(--accent);
   cursor: default;
+}
+
+.prose .wikilink.ProseMirror-selectednode {
+  outline: 2px solid color-mix(in oklab, var(--accent) 40%, transparent);
+  outline-offset: 1px;
 }
 
 .prose blockquote {

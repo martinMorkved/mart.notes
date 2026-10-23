@@ -61,32 +61,6 @@
   color: var(--accent);
 }
 
-.mode-toggle {
-  display: inline-flex;
-  padding: 2px;
-  border: 1px solid var(--rule);
-  border-radius: 3px;
-}
-
-.mode-toggle button {
-  padding: 0.25rem 0.625rem;
-  border: 0;
-  border-radius: 2px;
-  background: none;
-  color: var(--ink-soft);
-  font-size: 0.8125rem;
-  cursor: pointer;
-}
-
-.mode-toggle button:hover {
-  color: var(--ink);
-}
-
-.mode-toggle button[aria-pressed='true'] {
-  background: var(--ink);
-  color: var(--paper);
-}
-
 .note-title {
   margin-bottom: 1.5rem;
 }
@@ -121,20 +95,46 @@
   tab-size: 2;
 }
 
-.note-preview {
+.note-rich {
   min-height: 60vh;
+  outline: none;
 }
 
-.note-preview-empty {
-  display: grid;
-  gap: 1rem;
-  justify-items: start;
-  color: var(--ink-soft);
-  font: italic 400 1.125rem/1.4 var(--serif);
+.note-rich p.is-editor-empty:first-child::before {
+  content: attr(data-placeholder);
+  float: left;
+  height: 0;
+  color: var(--ink-faint);
+  pointer-events: none;
 }
 
-.note-preview-empty button {
-  font: 400 1rem var(--sans);
+.note-rich ul[data-type='taskList'] {
+  padding-left: 0;
+  list-style: none;
+}
+
+.note-rich ul[data-type='taskList'] li {
+  display: flex;
+  align-items: baseline;
+  gap: 0.625em;
+}
+
+.note-rich ul[data-type='taskList'] li > label input {
+  accent-color: var(--accent);
+  cursor: pointer;
+}
+
+.note-rich ul[data-type='taskList'] li[data-checked='true'] > div {
+  color: var(--ink-faint);
+  text-decoration: line-through;
+}
+
+.note-rich .selectedCell {
+  background: color-mix(in oklab, var(--accent) 12%, transparent);
+}
+
+.note-rich a {
+  cursor: text;
 }
 
 @media (min-width: 52rem) {
@@ -149,7 +149,7 @@
 }
 
 @media (min-width: 72rem) {
-  .note-layout[data-help] {
+  .note-layout[data-panel] {
     grid-template-columns: minmax(0, 1fr) 20rem;
   }
 }
