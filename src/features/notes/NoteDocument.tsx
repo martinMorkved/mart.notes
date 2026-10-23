@@ -3,12 +3,14 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import type { Note } from '@shared/types'
 import { usePersistentState } from '@/lib/usePersistentState'
+import { useShortcut } from '@/lib/useShortcut'
 import { Menu } from '@/ui/Menu'
 import { SaveStatus } from './editor/SaveStatus'
 import { SourceEditor } from './editor/SourceEditor'
 import { TitleInput } from './editor/TitleInput'
 import { useAutosave } from './editor/useAutosave'
 import { useNoteEditor } from './editor/useNoteEditor'
+import { ViewToggle, type NoteViewMode } from './editor/ViewToggle'
 import { FormatPanel } from './format/FormatPanel'
 import { FormatPanelButton } from './format/FormatPanelButton'
 import { useDeleteNote } from './mutations'
@@ -25,11 +27,16 @@ export function NoteDocument({ note, folderName }: { note: Note; folderName: str
   const [panelOpen, setPanelOpen] = usePersistentState('format-panel', true)
   const editor = useNoteEditor(note.content, (content) => autosave.change({ content }))
 
-  function toggleSource() {
-    if (source === null) return setSource(editor.getMarkdown())
-    editor.commands.setContent(source, { contentType: 'markdown', emitUpdate: false })
+  const mode: NoteViewMode = source === null ? 'text' : 'markdown'
+
+  function switchTo(next: NoteViewMode) {
+    if (next === mode) return
+    if (next === 'markdown') return setSource(editor.getMarkdown())
+    editor.commands.setContent(source ?? '', { contentType: 'markdown', emitUpdate: false })
     setSource(null)
   }
+
+  useShortcut('e', () => switchTo(mode === 'text' ? 'markdown' : 'text'))
 
   function remove() {
     autosave.flush()
@@ -38,18 +45,13 @@ export function NoteDocument({ note, folderName }: { note: Note; folderName: str
   }
 
   return (
-    <div className="note-layout" data-panel={(panelOpen && source === null) || undefined}>
+    <div className="note-layout" data-panel={(panelOpen && mode === 'text') || undefined}>
       <article className="note">
         <NoteBar folderId={note.folderId} folderName={folderName}>
           <SaveStatus state={autosave.state} updatedAt={note.updatedAt} />
-          {source === null && <FormatPanelButton open={panelOpen} onToggle={() => setPanelOpen(!panelOpen)} />}
-          <Menu
-            label="Note actions"
-            items={[
-              { label: source === null ? 'Edit as markdown' : 'Back to formatted', onSelect: toggleSource },
-              { label: 'Move to trash', onSelect: remove, danger: true },
-            ]}
-          />
+          <ViewToggle mode={mode} onChange={switchTo} />
+          {mode === 'text' && <FormatPanelButton open={panelOpen} onToggle={() => setPanelOpen(!panelOpen)} />}
+          <Menu label="Note actions" items={[{ label: 'Move to trash', onSelect: remove, danger: true }]} />
         </NoteBar>
 
         <TitleInput
@@ -62,11 +64,11 @@ export function NoteDocument({ note, folderName }: { note: Note; folderName: str
           onEnter={() => editor.commands.focus('start')}
         />
 
-        {source === null ? (
+        {mode === 'text' ? (
           <EditorContent editor={editor} />
         ) : (
           <SourceEditor
-            value={source}
+            value={source ?? ''}
             onChange={(value) => {
               setSource(value)
               autosave.change({ content: value })
@@ -75,7 +77,7 @@ export function NoteDocument({ note, folderName }: { note: Note; folderName: str
         )}
       </article>
 
-      {panelOpen && source === null && <FormatPanel editor={editor} onClose={() => setPanelOpen(false)} />}
+      {panelOpen && mode === 'text' && <FormatPanel editor={editor} onClose={() => setPanelOpen(false)} />}
     </div>
   )
 }

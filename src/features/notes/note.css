@@ -61,6 +61,32 @@
   color: var(--accent);
 }
 
+.view-toggle {
+  display: inline-flex;
+  padding: 2px;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+}
+
+.view-toggle button {
+  padding: 0.25rem 0.625rem;
+  border: 0;
+  border-radius: 2px;
+  background: none;
+  color: var(--ink-soft);
+  font-size: 0.8125rem;
+  cursor: pointer;
+}
+
+.view-toggle button:hover {
+  color: var(--ink);
+}
+
+.view-toggle button[aria-pressed='true'] {
+  background: var(--ink);
+  color: var(--paper);
+}
+
 .note-title {
   margin-bottom: 1.5rem;
 }

@@ -1,4 +1,4 @@
-import { mergeAttributes, Node, nodeInputRule } from '@tiptap/core'
+import { InputRule, mergeAttributes, Node } from '@tiptap/core'
 
 const WIKI_LINK = /^\[\[([^[\]|]+)(?:\|([^[\]]+))?\]\]/
 const TYPED_WIKI_LINK = /\[\[([^[\]|]+)(?:\|([^[\]]+))?\]\]$/
@@ -73,10 +73,12 @@ export const WikiLink = Node.create({
 
   addInputRules() {
     return [
-      nodeInputRule({
+      new InputRule({
         find: TYPED_WIKI_LINK,
-        type: this.type,
-        getAttributes: (match) => ({ target: match[1].trim(), label: match[2]?.trim() ?? null }),
+        handler: ({ state, range, match }) => {
+          const node = this.type.create({ target: match[1].trim(), label: match[2]?.trim() ?? null })
+          state.tr.replaceWith(range.from, range.to, node)
+        },
       }),
     ]
   },

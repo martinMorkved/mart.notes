@@ -7,6 +7,7 @@ const SEPARATOR = /^\|(\s*:?-+:?\s*\|)+$/
 // Pressing Enter after two or more "| a | b |" lines turns them into a real table
 export const TypedTable = Extension.create({
   name: 'typedTable',
+  priority: 1000,
 
   addKeyboardShortcuts() {
     return {
