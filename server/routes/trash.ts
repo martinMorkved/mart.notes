@@ -1,9 +1,13 @@
+import { zValidator } from '@hono/zod-validator'
 import { and, eq, isNotNull, sql } from 'drizzle-orm'
 import { Hono } from 'hono'
+import { idParam } from '../../shared/schemas'
 import type { Counts, TrashedFolder, TrashedNote } from '../../shared/types'
 import { db } from '../db'
 import { folders, notes } from '../db/schema'
 import { type AppEnv, requireUser } from '../env'
+
+const validId = zValidator('param', idParam)
 
 // A folder and its contents are trashed with the same deleted_at. That timestamp is what ties
 // one deletion together, so a restore brings back exactly what disappeared at the same time.
@@ -33,7 +37,7 @@ export const trashRoutes = new Hono<AppEnv>()
   })
 
   // Nothing live may sit inside a trashed folder, so the ancestors come back too
-  .post('/folders/:id/restore', async (c) => {
+  .post('/folders/:id/restore', validId, async (c) => {
     const { rows } = await db.execute<Counts>(sql`
       with recursive target as (
         select id, parent_id, deleted_at from folders
@@ -66,7 +70,7 @@ export const trashRoutes = new Hono<AppEnv>()
     return rows[0].folders ? c.json(rows[0]) : c.json({ error: 'Folder not found' }, 404)
   })
 
-  .post('/notes/:id/restore', async (c) => {
+  .post('/notes/:id/restore', validId, async (c) => {
     const { rows } = await db.execute<Counts>(sql`
       with recursive target as (
         select id, folder_id from notes
@@ -90,7 +94,7 @@ export const trashRoutes = new Hono<AppEnv>()
     return rows[0].notes ? c.json(rows[0]) : c.json({ error: 'Note not found' }, 404)
   })
 
-  .delete('/folders/:id', async (c) => {
+  .delete('/folders/:id', validId, async (c) => {
     const [row] = await db
       .delete(folders)
       .where(
@@ -104,7 +108,7 @@ export const trashRoutes = new Hono<AppEnv>()
     return row ? c.body(null, 204) : c.json({ error: 'Folder not found' }, 404)
   })
 
-  .delete('/notes/:id', async (c) => {
+  .delete('/notes/:id', validId, async (c) => {
     const [row] = await db
       .delete(notes)
       .where(

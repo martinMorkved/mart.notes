@@ -1,18 +1,3 @@
-import { queryOptions } from '@tanstack/react-query'
-import { createAuthClient } from 'better-auth/react'
-
-export const authClient = createAuthClient()
-
-export const sessionQuery = queryOptions({
-  queryKey: ['session'],
-  queryFn: async () => {
-    const { data, error } = await authClient.getSession()
-    if (error) throw new Error(error.message)
-    return data
-  },
-  staleTime: 5 * 60_000,
-})
-
 const messages: Record<string, string> = {
   INVALID_EMAIL_OR_PASSWORD: 'Wrong email or password.',
   INVALID_EMAIL: "That email address doesn't look right.",

@@ -2,11 +2,13 @@ import { zValidator } from '@hono/zod-validator'
 import { and, eq, isNull } from 'drizzle-orm'
 import { generateKeyBetween } from 'fractional-indexing'
 import { Hono } from 'hono'
-import { createNote, updateNote } from '../../shared/schemas'
+import { createNote, updateNote, idParam } from '../../shared/schemas'
 import { db } from '../db'
 import { notes } from '../db/schema'
 import { type AppEnv, requireUser } from '../env'
 import { ownsFolder } from './folders'
+
+const validId = zValidator('param', idParam)
 
 const noteColumns = {
   id: notes.id,
@@ -53,7 +55,7 @@ export const noteRoutes = new Hono<AppEnv>()
     return c.json(note, 201)
   })
 
-  .get('/:id', async (c) => {
+  .get('/:id', validId, async (c) => {
     const [note] = await db
       .select(noteColumns)
       .from(notes)
@@ -61,7 +63,7 @@ export const noteRoutes = new Hono<AppEnv>()
     return note ? c.json(note) : c.json(notFound, 404)
   })
 
-  .patch('/:id', zValidator('json', updateNote), async (c) => {
+  .patch('/:id', validId, zValidator('json', updateNote), async (c) => {
     const [note] = await db
       .update(notes)
       .set(c.req.valid('json'))
@@ -70,7 +72,7 @@ export const noteRoutes = new Hono<AppEnv>()
     return note ? c.json(note) : c.json(notFound, 404)
   })
 
-  .delete('/:id', async (c) => {
+  .delete('/:id', validId, async (c) => {
     const [note] = await db
       .update(notes)
       .set({ deletedAt: new Date() })

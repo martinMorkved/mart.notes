@@ -1,5 +1,6 @@
 import devServer from '@hono/vite-dev-server'
 import react from '@vitejs/plugin-react'
+import { fileURLToPath } from 'node:url'
 import { defineConfig, loadEnv } from 'vite'
 
 export default defineConfig(({ mode }) => {
@@ -15,6 +16,12 @@ export default defineConfig(({ mode }) => {
         injectClientScript: false,
       }),
     ],
+    resolve: {
+      alias: {
+        '@shared': fileURLToPath(new URL('./shared', import.meta.url)),
+        '@': fileURLToPath(new URL('./src', import.meta.url)),
+      },
+    },
     server: { port: 5180, strictPort: true },
   }
 })

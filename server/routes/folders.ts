@@ -2,11 +2,13 @@ import { zValidator } from '@hono/zod-validator'
 import { and, desc, eq, isNull, sql } from 'drizzle-orm'
 import { generateKeyBetween } from 'fractional-indexing'
 import { Hono } from 'hono'
-import { createFolder, updateFolder } from '../../shared/schemas'
+import { createFolder, updateFolder, idParam } from '../../shared/schemas'
 import type { Counts } from '../../shared/types'
 import { db } from '../db'
 import { folders, notes } from '../db/schema'
 import { type AppEnv, requireUser } from '../env'
+
+const validId = zValidator('param', idParam)
 
 export const folderColumns = {
   id: folders.id,
@@ -78,7 +80,7 @@ export const folderRoutes = new Hono<AppEnv>()
     return c.json(folder, 201)
   })
 
-  .patch('/:id', zValidator('json', updateFolder), async (c) => {
+  .patch('/:id', validId, zValidator('json', updateFolder), async (c) => {
     const [folder] = await db
       .update(folders)
       .set(c.req.valid('json'))
@@ -87,7 +89,7 @@ export const folderRoutes = new Hono<AppEnv>()
     return folder ? c.json(folder) : c.json(notFound, 404)
   })
 
-  .delete('/:id', async (c) => {
+  .delete('/:id', validId, async (c) => {
     const { rows } = await db.execute<Counts>(sql`
       with recursive tree as (
         select id from folders
@@ -108,7 +110,7 @@ export const folderRoutes = new Hono<AppEnv>()
     return rows[0].folders ? c.json(rows[0]) : c.json(notFound, 404)
   })
 
-  .get('/:id/notes', async (c) => {
+  .get('/:id/notes', validId, async (c) => {
     const id = c.req.param('id')
     if (!(await ownsFolder(c.var.userId, id))) return c.json(notFound, 404)
     const rows = await db

@@ -29,3 +29,5 @@ export type CreateFolder = z.infer<typeof createFolder>
 export type UpdateFolder = z.infer<typeof updateFolder>
 export type CreateNote = z.input<typeof createNote>
 export type UpdateNote = z.infer<typeof updateNote>
+
+export const idParam = z.object({ id: z.uuid() })
