@@ -5,7 +5,7 @@ import { FolderTree } from '@/features/folders/FolderTree'
 import { SearchField } from '@/features/search/SearchField'
 import { SearchResults } from '@/features/search/SearchResults'
 import { useClearOnWriting } from '@/features/search/useClearOnWriting'
-import { TrashIcon } from '@/ui/icons'
+import { CheckIcon, TrashIcon } from '@/ui/icons'
 import { Wordmark } from '@/ui/Wordmark'
 import { ThemeToggle } from './ThemeToggle'
 
@@ -39,6 +39,10 @@ export function Sidebar({ activeFolderId }: { activeFolderId: string | null }) {
       )}
 
       <div className="sidebar-footer">
+        <NavLink to="/todo" className="sidebar-link">
+          <CheckIcon />
+          To-do
+        </NavLink>
         <NavLink to="/trash" className="sidebar-link">
           <TrashIcon />
           Trash

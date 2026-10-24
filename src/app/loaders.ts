@@ -3,6 +3,7 @@ import { sessionQuery } from '@/features/auth/authClient'
 import { foldersQuery } from '@/features/folders/queries'
 import { childrenByParent } from '@/features/folders/tree'
 import { folderNotesQuery, noteQuery } from '@/features/notes/queries'
+import { tasksQuery } from '@/features/tasks/queries'
 import { trashQuery } from '@/features/trash/queries'
 import { HttpError, queryClient } from '@/lib/queryClient'
 
@@ -47,5 +48,10 @@ export async function loadNote({ params }: LoaderFunctionArgs) {
 
 export async function loadTrash() {
   await queryClient.ensureQueryData(trashQuery)
+  return null
+}
+
+export async function loadTasks() {
+  await queryClient.ensureQueryData(tasksQuery)
   return null
 }

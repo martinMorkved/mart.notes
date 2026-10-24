@@ -56,3 +56,18 @@ export function placeFolder(
     zone === 'before' ? positionBetween(siblings[i - 1], target) : positionBetween(target, siblings[i + 1])
   return { parentId, position }
 }
+
+// The whole tree in display order, each folder with its depth, leaving out `hidden` subtrees
+export function flattenTree(folders: Folder[], hidden: Set<string> = new Set()) {
+  const children = childrenByParent(folders)
+  const rows: { folder: Folder; depth: number }[] = []
+  const walk = (parentId: string | null, depth: number) => {
+    for (const folder of children.get(parentId) ?? []) {
+      if (hidden.has(folder.id)) continue
+      rows.push({ folder, depth })
+      walk(folder.id, depth + 1)
+    }
+  }
+  walk(null, 0)
+  return rows
+}

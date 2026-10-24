@@ -50,3 +50,5 @@ export const moveFolder = z.object({
 
 export type MoveNote = z.infer<typeof moveNote>
 export type MoveFolder = z.infer<typeof moveFolder>
+
+export const setTaskBody = z.object({ text: z.string().max(10_000), checked: z.boolean() })

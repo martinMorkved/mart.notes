@@ -37,6 +37,13 @@ export const MoreIcon = (props: SVGProps<SVGSVGElement>) => (
   </Icon>
 )
 
+export const CheckIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon {...props}>
+    <rect x="2.5" y="2.5" width="11" height="11" rx="1.5" />
+    <path d="M5.25 8.25 7.25 10.25 10.75 5.75" />
+  </Icon>
+)
+
 export const TrashIcon = (props: SVGProps<SVGSVGElement>) => (
   <Icon {...props}>
     <path d="M3 4.5h10M6.5 4.5V3h3v1.5M4.5 4.5l.6 8.5h5.8l.6-8.5" />

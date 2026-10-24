@@ -1,3 +1,5 @@
+import type { TaskList } from './tasks'
+
 export type Folder = {
   id: string
   parentId: string | null
@@ -68,4 +70,12 @@ export type Backlink = {
   id: string
   title: string
   folderName: string
+}
+
+export type NoteTasks = {
+  noteId: string
+  title: string
+  folderId: string
+  position: string
+  lists: TaskList[]
 }

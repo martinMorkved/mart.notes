@@ -3,7 +3,7 @@ import { type CSSProperties, useEffect, useMemo, useRef } from 'react'
 import type { Folder } from '@shared/types'
 import { CloseIcon } from '@/ui/icons'
 import { foldersQuery } from './queries'
-import { childrenByParent } from './tree'
+import { flattenTree } from './tree'
 import './folder-picker.css'
 
 type Props = {
@@ -18,25 +18,10 @@ type Props = {
   onClose: () => void
 }
 
-// The whole tree, flattened in display order with each folder's depth
-function flatten(folders: Folder[], hidden: Set<string>) {
-  const children = childrenByParent(folders)
-  const rows: { folder: Folder; depth: number }[] = []
-  const walk = (parentId: string | null, depth: number) => {
-    for (const folder of children.get(parentId) ?? []) {
-      if (hidden.has(folder.id)) continue
-      rows.push({ folder, depth })
-      walk(folder.id, depth + 1)
-    }
-  }
-  walk(null, 0)
-  return rows
-}
-
 // "Move to…": pick a folder from a list, the way to move things where dragging is awkward
 export function FolderPicker({ title, currentId, hidden, allowTopLevel, onPick, onClose }: Props) {
   const { data: folders } = useSuspenseQuery(foldersQuery)
-  const rows = useMemo(() => flatten(folders, hidden ?? new Set()), [folders, hidden])
+  const rows = useMemo(() => flattenTree(folders, hidden), [folders, hidden])
   const ref = useRef<HTMLDialogElement>(null)
 
   useEffect(() => {

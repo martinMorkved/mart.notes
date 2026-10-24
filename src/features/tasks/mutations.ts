@@ -1,0 +1,49 @@
+import { useMutation } from '@tanstack/react-query'
+import type { Note, NoteTasks } from '@shared/types'
+import { folderNotesQuery, noteQuery } from '@/features/notes/queries'
+import { api } from '@/lib/api'
+import { HttpError, queryClient } from '@/lib/queryClient'
+import { showToast } from '@/ui/toast'
+import { tasksQuery } from './queries'
+
+type Input = { note: NoteTasks; index: number; text: string; checked: boolean }
+
+function tick(list: NoteTasks[] | undefined, { note, index, checked }: Input) {
+  return list?.map((n) =>
+    n.noteId !== note.noteId
+      ? n
+      : {
+          ...n,
+          lists: n.lists.map((l) => ({
+            ...l,
+            tasks: l.tasks.map((t) => (t.index === index ? { ...t, checked } : t)),
+          })),
+        },
+  )
+}
+
+export function useSetTask() {
+  return useMutation({
+    // One at a time: each tick reads the note and writes it back, so two at once could undo one
+    scope: { id: 'task-writes' },
+    mutationFn: ({ note, index, text, checked }: Input) =>
+      api<Pick<Note, 'content' | 'updatedAt'>>('PATCH', `/tasks/${note.noteId}/${index}`, { text, checked }),
+    onMutate: async (input) => {
+      await queryClient.cancelQueries({ queryKey: tasksQuery.queryKey })
+      const previous = queryClient.getQueryData(tasksQuery.queryKey)
+      queryClient.setQueryData(tasksQuery.queryKey, (list) => tick(list, input))
+      return { previous }
+    },
+    onSuccess: (saved, { note }) => {
+      // An open copy of the note gets the new text, so it doesn't save the old box back
+      queryClient.setQueryData(noteQuery(note.noteId).queryKey, (n) => (n ? { ...n, ...saved } : n))
+      queryClient.invalidateQueries({ queryKey: folderNotesQuery(note.folderId).queryKey })
+    },
+    onError: (error, _input, context) => {
+      queryClient.setQueryData(tasksQuery.queryKey, context?.previous)
+      const changed = error instanceof HttpError && error.status === 409
+      showToast({ message: changed ? error.message : 'Couldn’t save the change. Check your connection.' })
+      if (changed) queryClient.invalidateQueries({ queryKey: tasksQuery.queryKey })
+    },
+  })
+}

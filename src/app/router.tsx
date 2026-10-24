@@ -5,6 +5,7 @@ import { SignInPage } from '@/features/auth/SignInPage'
 import { SignUpPage } from '@/features/auth/SignUpPage'
 import { EmptyHome } from '@/features/folders/EmptyHome'
 import { FolderView } from '@/features/folders/FolderView'
+import { TasksView } from '@/features/tasks/TasksView'
 import { TrashView } from '@/features/trash/TrashView'
 import { AppLayout } from './AppLayout'
 import { NotFound } from './errors/NotFound'
@@ -13,6 +14,7 @@ import { RootRoute } from './RootRoute'
 import {
   loadFolder,
   loadNote,
+  loadTasks,
   loadTrash,
   openFirstFolder,
   redirectIfSignedIn,
@@ -42,6 +44,7 @@ export const router = createBrowserRouter([
                 loader: loadNote,
                 lazy: () => import('@/features/notes/NoteView').then((m) => ({ Component: m.NoteView })),
               },
+              { path: '/todo', loader: loadTasks, element: <TasksView /> },
               { path: '/trash', loader: loadTrash, element: <TrashView /> },
               { path: '*', element: <NotFound /> },
             ],
