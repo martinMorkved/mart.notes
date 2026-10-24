@@ -12,6 +12,7 @@ import { useNoteEditor } from './editor/useNoteEditor'
 import { VIEW_SHORTCUT, ViewToggle, type NoteViewMode } from './editor/ViewToggle'
 import { FormatPanel } from './format/FormatPanel'
 import { FormatPanelButton } from './format/FormatPanelButton'
+import { MobileToolbar } from './format/MobileToolbar'
 import { useFormatPanel } from './format/useFormatPanel'
 import { useDeleteNote } from './mutations'
 import { NoteBar } from './NoteBar'
@@ -24,7 +25,7 @@ export function NoteDocument({ note, folderName }: { note: Note; folderName: str
   const autosave = useAutosave(note.id, note.folderId)
   const [title, setTitle] = useState(note.title)
   const [source, setSource] = useState<string | null>(null)
-  const [panelOpen, setPanelOpen] = useFormatPanel()
+  const panel = useFormatPanel()
   const editor = useNoteEditor(note.content, (content) => autosave.change({ content }))
 
   const mode: NoteViewMode = source === null ? 'text' : 'markdown'
@@ -45,12 +46,12 @@ export function NoteDocument({ note, folderName }: { note: Note; folderName: str
   }
 
   return (
-    <div className="note-layout" data-panel={(panelOpen && mode === 'text') || undefined}>
+    <div className="note-layout" data-panel={(panel.open && mode === 'text') || undefined}>
       <article className="note">
         <NoteBar folderId={note.folderId} folderName={folderName}>
           <SaveStatus state={autosave.state} updatedAt={note.updatedAt} />
           <ViewToggle mode={mode} onChange={switchTo} />
-          {mode === 'text' && <FormatPanelButton open={panelOpen} onToggle={() => setPanelOpen(!panelOpen)} />}
+          {mode === 'text' && <FormatPanelButton open={panel.open} onToggle={() => panel.setOpen(!panel.open)} />}
           <Menu label="Note actions" items={[{ label: 'Move to trash', onSelect: remove, danger: true }]} />
         </NoteBar>
 
@@ -77,7 +78,8 @@ export function NoteDocument({ note, folderName }: { note: Note; folderName: str
         )}
       </article>
 
-      {panelOpen && mode === 'text' && <FormatPanel editor={editor} onClose={() => setPanelOpen(false)} />}
+      {mode === 'text' && !panel.docked && !panel.open && <MobileToolbar editor={editor} />}
+      {panel.open && mode === 'text' && <FormatPanel editor={editor} onClose={() => panel.setOpen(false)} />}
     </div>
   )
 }

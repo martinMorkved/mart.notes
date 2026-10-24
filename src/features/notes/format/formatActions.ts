@@ -2,6 +2,7 @@ import type { Editor } from '@tiptap/react'
 
 export type FormatAction = {
   label: string
+  short: string
   shortcut: string
   keys?: string
   run: (editor: Editor) => void
@@ -28,6 +29,7 @@ function linkToNote(editor: Editor) {
 export const formatActions: FormatAction[] = [
   {
     label: 'Heading',
+    short: 'H2',
     shortcut: '## ',
     keys: 'Mod-Alt-2',
     run: (e) => e.chain().focus().toggleHeading({ level: 2 }).run(),
@@ -35,6 +37,7 @@ export const formatActions: FormatAction[] = [
   },
   {
     label: 'Subheading',
+    short: 'H3',
     shortcut: '### ',
     keys: 'Mod-Alt-3',
     run: (e) => e.chain().focus().toggleHeading({ level: 3 }).run(),
@@ -42,6 +45,7 @@ export const formatActions: FormatAction[] = [
   },
   {
     label: 'Bold',
+    short: 'B',
     shortcut: '**text**',
     keys: 'Mod-b',
     run: (e) => e.chain().focus().toggleBold().run(),
@@ -49,6 +53,7 @@ export const formatActions: FormatAction[] = [
   },
   {
     label: 'Italic',
+    short: 'I',
     shortcut: '*text*',
     keys: 'Mod-i',
     run: (e) => e.chain().focus().toggleItalic().run(),
@@ -56,6 +61,7 @@ export const formatActions: FormatAction[] = [
   },
   {
     label: 'Strikethrough',
+    short: 'S',
     shortcut: '~~text~~',
     keys: 'Mod-Shift-s',
     run: (e) => e.chain().focus().toggleStrike().run(),
@@ -63,18 +69,21 @@ export const formatActions: FormatAction[] = [
   },
   {
     label: 'Link',
+    short: 'Link',
     shortcut: '[text](url)',
     run: toggleLink,
     isActive: (e) => e.isActive('link'),
   },
   {
     label: 'Link to a note',
+    short: '[[ ]]',
     shortcut: '[[Note]]',
     run: linkToNote,
     isActive: (e) => e.isActive('wikiLink'),
   },
   {
     label: 'List',
+    short: 'List',
     shortcut: '- ',
     keys: 'Mod-Shift-8',
     run: (e) => e.chain().focus().toggleBulletList().run(),
@@ -82,6 +91,7 @@ export const formatActions: FormatAction[] = [
   },
   {
     label: 'Numbered list',
+    short: '1. 2.',
     shortcut: '1. ',
     keys: 'Mod-Shift-7',
     run: (e) => e.chain().focus().toggleOrderedList().run(),
@@ -89,6 +99,7 @@ export const formatActions: FormatAction[] = [
   },
   {
     label: 'Checklist',
+    short: 'To-do',
     shortcut: '[ ] ',
     keys: 'Mod-Shift-9',
     run: (e) => e.chain().focus().toggleTaskList().run(),
@@ -96,6 +107,7 @@ export const formatActions: FormatAction[] = [
   },
   {
     label: 'Quote',
+    short: 'Quote',
     shortcut: '> ',
     keys: 'Mod-Shift-b',
     run: (e) => e.chain().focus().toggleBlockquote().run(),
@@ -103,6 +115,7 @@ export const formatActions: FormatAction[] = [
   },
   {
     label: 'Code',
+    short: 'Code',
     shortcut: '`code`',
     keys: 'Mod-e',
     run: (e) => e.chain().focus().toggleCode().run(),
@@ -110,6 +123,7 @@ export const formatActions: FormatAction[] = [
   },
   {
     label: 'Code block',
+    short: 'Block',
     shortcut: '``` ',
     keys: 'Mod-Alt-c',
     run: (e) => e.chain().focus().toggleCodeBlock().run(),
@@ -117,12 +131,14 @@ export const formatActions: FormatAction[] = [
   },
   {
     label: 'Table',
+    short: 'Table',
     shortcut: '| a | b |',
     run: (e) => e.chain().focus().insertTable({ rows: 3, cols: 2, withHeaderRow: true }).run(),
     isActive: (e) => e.isActive('table'),
   },
   {
     label: 'Divider',
+    short: 'Line',
     shortcut: '---',
     run: (e) => e.chain().focus().setHorizontalRule().run(),
   },

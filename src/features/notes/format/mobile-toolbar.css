@@ -1,0 +1,81 @@
+.mobile-toolbar {
+  position: fixed;
+  right: 0;
+  bottom: var(--keyboard);
+  left: 0;
+  z-index: 45;
+  display: flex;
+  gap: 0.25rem;
+  padding-top: 0.375rem;
+  padding-right: max(0.5rem, env(safe-area-inset-right, 0px));
+  padding-bottom: calc(0.375rem + var(--safe-bottom));
+  padding-left: max(0.5rem, env(safe-area-inset-left, 0px));
+  overflow-x: auto;
+  border-top: 1px solid var(--rule);
+  background: var(--paper-sunk);
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+}
+
+.mobile-toolbar::-webkit-scrollbar {
+  display: none;
+}
+
+.mobile-tool {
+  flex: none;
+  min-width: 2.75rem;
+  height: 2.5rem;
+  padding: 0 0.625rem;
+  border: 1px solid transparent;
+  border-radius: 3px;
+  background: none;
+  color: var(--ink);
+  font-size: 0.9375rem;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+
+.mobile-tool[aria-pressed='true'] {
+  border-color: var(--ink);
+  background: var(--paper-raised);
+}
+
+.mobile-tool[data-table] {
+  border-color: var(--rule);
+  font-size: 0.8125rem;
+}
+
+.mobile-tool[data-table][data-danger] {
+  color: var(--accent);
+}
+
+.mobile-tool[data-format='Heading'] {
+  font: 600 1rem/1 var(--serif);
+}
+
+.mobile-tool[data-format='Subheading'] {
+  font: 600 0.875rem/1 var(--serif);
+}
+
+.mobile-tool[data-format='Bold'] {
+  font-weight: 700;
+}
+
+.mobile-tool[data-format='Italic'] {
+  font: italic 400 1.0625rem/1 var(--serif);
+}
+
+.mobile-tool[data-format='Strikethrough'] {
+  text-decoration: line-through;
+}
+
+.mobile-tool[data-format='Code'],
+.mobile-tool[data-format='Code block'] {
+  font: 400 0.8125rem/1 var(--mono);
+}
+
+@media (min-width: 72rem) {
+  .mobile-toolbar {
+    display: none;
+  }
+}

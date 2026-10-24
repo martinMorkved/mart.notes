@@ -14,5 +14,5 @@ export function useFormatPanel() {
   const open = docked ? remembered : sheetOpen
   const setOpen = docked ? setRemembered : setSheetOpen
 
-  return [open, setOpen] as const
+  return { open, setOpen, docked }
 }
