@@ -14,8 +14,8 @@ export function placeInkBlots(root: HTMLElement, x: number, y: number) {
     const bx = first ? x : Math.random() * w
     const by = first ? y : Math.random() * h
     const radius = first ? cover : diagonal * (0.18 + Math.random() * 0.3)
-    const duration = first ? 1200 : 600 + Math.random() * 500
-    const delay = first ? 0 : 60 + Math.random() * 380
+    const duration = first ? 1800 : 900 + Math.random() * 700
+    const delay = first ? 0 : 100 + Math.random() * 550
 
     root.style.setProperty(`--blot-${i}-x`, `${bx}px`)
     root.style.setProperty(`--blot-${i}-y`, `${by}px`)
