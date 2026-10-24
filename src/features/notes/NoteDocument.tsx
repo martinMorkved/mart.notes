@@ -2,7 +2,6 @@ import { EditorContent } from '@tiptap/react'
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import type { Note } from '@shared/types'
-import { usePersistentState } from '@/lib/usePersistentState'
 import { useShortcut } from '@/lib/useShortcut'
 import { Menu } from '@/ui/Menu'
 import { SaveStatus } from './editor/SaveStatus'
@@ -13,6 +12,7 @@ import { useNoteEditor } from './editor/useNoteEditor'
 import { VIEW_SHORTCUT, ViewToggle, type NoteViewMode } from './editor/ViewToggle'
 import { FormatPanel } from './format/FormatPanel'
 import { FormatPanelButton } from './format/FormatPanelButton'
+import { useFormatPanel } from './format/useFormatPanel'
 import { useDeleteNote } from './mutations'
 import { NoteBar } from './NoteBar'
 import './editor/prose.css'
@@ -24,7 +24,7 @@ export function NoteDocument({ note, folderName }: { note: Note; folderName: str
   const autosave = useAutosave(note.id, note.folderId)
   const [title, setTitle] = useState(note.title)
   const [source, setSource] = useState<string | null>(null)
-  const [panelOpen, setPanelOpen] = usePersistentState('format-panel', true)
+  const [panelOpen, setPanelOpen] = useFormatPanel()
   const editor = useNoteEditor(note.content, (content) => autosave.change({ content }))
 
   const mode: NoteViewMode = source === null ? 'text' : 'markdown'
