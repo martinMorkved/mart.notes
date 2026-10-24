@@ -20,15 +20,18 @@
 }
 
 .prose h1 {
-  font-size: 1.75em;
+  font-size: 2.1em;
 }
 
 .prose h2 {
-  font-size: 1.4em;
+  margin-top: 1.4em;
+  font-size: 1.75em;
+  letter-spacing: -0.02em;
 }
 
 .prose h3 {
-  font-size: 1.2em;
+  margin-top: 1.25em;
+  font-size: 1.25em;
 }
 
 .prose :where(h4, h5, h6) {
