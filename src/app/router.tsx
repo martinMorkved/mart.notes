@@ -5,7 +5,6 @@ import { SignInPage } from '@/features/auth/SignInPage'
 import { SignUpPage } from '@/features/auth/SignUpPage'
 import { EmptyHome } from '@/features/folders/EmptyHome'
 import { FolderView } from '@/features/folders/FolderView'
-import { NoteView } from '@/features/notes/NoteView'
 import { TrashView } from '@/features/trash/TrashView'
 import { AppLayout } from './AppLayout'
 import { NotFound } from './errors/NotFound'
@@ -36,7 +35,11 @@ export const router = createBrowserRouter([
             children: [
               { index: true, loader: openFirstFolder, element: <EmptyHome /> },
               { path: '/folder/:id', loader: loadFolder, element: <FolderView /> },
-              { path: '/note/:id', loader: loadNote, element: <NoteView /> },
+              {
+                path: '/note/:id',
+                loader: loadNote,
+                lazy: () => import('@/features/notes/NoteView').then((m) => ({ Component: m.NoteView })),
+              },
               { path: '/trash', loader: loadTrash, element: <TrashView /> },
               { path: '*', element: <NotFound /> },
             ],

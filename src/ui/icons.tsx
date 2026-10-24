@@ -68,9 +68,8 @@ export const ThemeIcon = (props: SVGProps<SVGSVGElement>) => (
   </Icon>
 )
 
-export const HelpIcon = (props: SVGProps<SVGSVGElement>) => (
+export const FormatIcon = (props: SVGProps<SVGSVGElement>) => (
   <Icon {...props}>
-    <rect x="1.75" y="3.25" width="12.5" height="9.5" rx="1.5" />
-    <path d="M4.5 10V6l1.75 2L8 6v4M11 6v4M9.75 8.75 11 10l1.25-1.25" />
+    <path d="M2 12.5 5.5 3.5 9 12.5M3.2 9.5h4.6M10.5 6.5h4M10.5 9.5h4M10.5 12.5h4" />
   </Icon>
 )
