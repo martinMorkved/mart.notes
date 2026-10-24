@@ -8,6 +8,7 @@ import { MarkdownShortcuts } from './MarkdownShortcuts'
 import { StrictItalic } from './StrictItalic'
 import { TypedTable } from './TypedTable'
 import { WikiLink } from './WikiLink'
+import { WikiLinkSuggest } from './WikiLinkSuggest'
 
 export const extensions = [
   StarterKit.configure({
@@ -21,6 +22,7 @@ export const extensions = [
   TableKit.configure({ table: { resizable: false } }),
   Placeholder.configure({ placeholder: 'Start writing …' }),
   WikiLink,
+  WikiLinkSuggest,
   TypedTable,
   MarkdownShortcuts,
   MarkdownPaste,

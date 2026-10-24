@@ -3,6 +3,8 @@ import { useState } from 'react'
 import { flushSync } from 'react-dom'
 import { useNavigate } from 'react-router'
 import type { Note } from '@shared/types'
+import { Backlinks } from '@/features/links/Backlinks'
+import { useWikiLinks } from '@/features/links/useWikiLinks'
 import { runViewTransition } from '@/features/transitions/runViewTransition'
 import { useShortcut } from '@/lib/useShortcut'
 import { Menu } from '@/ui/Menu'
@@ -29,6 +31,7 @@ export function NoteDocument({ note, folderName }: { note: Note; folderName: str
   const [source, setSource] = useState<string | null>(null)
   const panel = useFormatPanel()
   const editor = useNoteEditor(note.content, (content) => autosave.change({ content }))
+  useWikiLinks(editor, note)
 
   const mode: NoteViewMode = source === null ? 'text' : 'markdown'
 
@@ -87,6 +90,8 @@ export function NoteDocument({ note, folderName }: { note: Note; folderName: str
             }}
           />
         )}
+
+        <Backlinks noteId={note.id} />
       </article>
 
       {mode === 'text' && !panel.docked && !panel.open && <MobileToolbar editor={editor} />}

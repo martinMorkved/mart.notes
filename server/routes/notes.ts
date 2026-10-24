@@ -1,11 +1,12 @@
 import { zValidator } from '@hono/zod-validator'
-import { and, eq, isNull } from 'drizzle-orm'
+import { and, desc, eq, isNull, ne } from 'drizzle-orm'
 import { generateKeyBetween } from 'fractional-indexing'
 import { Hono } from 'hono'
 import { createNote, updateNote, idParam } from '../../shared/schemas'
 import { db } from '../db'
-import { notes } from '../db/schema'
+import { folders, noteLinks, notes } from '../db/schema'
 import { type AppEnv, requireUser } from '../env'
+import { syncIncoming, syncOutgoing } from '../links'
 import { ownsFolder } from './folders'
 
 const validId = zValidator('param', idParam)
@@ -52,7 +53,32 @@ export const noteRoutes = new Hono<AppEnv>()
         position: generateKeyBetween(null, first?.position ?? null),
       })
       .returning(noteColumns)
+    // A note made from a link already has links pointing to it
+    if (title) await syncIncoming({ ...note, userId })
     return c.json(note, 201)
+  })
+
+  // Every titled note, for link suggestions and for telling live links from missing ones
+  .get('/titles', async (c) => {
+    const rows = await db
+      .select({ id: notes.id, title: notes.title, folderId: notes.folderId })
+      .from(notes)
+      .where(and(eq(notes.userId, c.var.userId), isNull(notes.deletedAt), ne(notes.title, '')))
+      .orderBy(desc(notes.updatedAt))
+    return c.json(rows)
+  })
+
+  .get('/:id/backlinks', validId, async (c) => {
+    const rows = await db
+      .select({ id: notes.id, title: notes.title, folderName: folders.name })
+      .from(noteLinks)
+      .innerJoin(notes, eq(notes.id, noteLinks.sourceId))
+      .innerJoin(folders, eq(folders.id, notes.folderId))
+      .where(
+        and(eq(noteLinks.targetId, c.req.param('id')), eq(notes.userId, c.var.userId), isNull(notes.deletedAt)),
+      )
+      .orderBy(desc(notes.updatedAt))
+    return c.json(rows)
   })
 
   .get('/:id', validId, async (c) => {
@@ -64,12 +90,20 @@ export const noteRoutes = new Hono<AppEnv>()
   })
 
   .patch('/:id', validId, zValidator('json', updateNote), async (c) => {
+    const patch = c.req.valid('json')
+    const userId = c.var.userId
     const [note] = await db
       .update(notes)
-      .set(c.req.valid('json'))
-      .where(liveNote(c.var.userId, c.req.param('id')))
+      .set(patch)
+      .where(liveNote(userId, c.req.param('id')))
       .returning(noteColumns)
-    return note ? c.json(note) : c.json(notFound, 404)
+    if (!note) return c.json(notFound, 404)
+
+    await Promise.all([
+      patch.content !== undefined && syncOutgoing({ ...note, userId }),
+      patch.title !== undefined && syncIncoming({ ...note, userId }),
+    ])
+    return c.json(note)
   })
 
   .delete('/:id', validId, async (c) => {

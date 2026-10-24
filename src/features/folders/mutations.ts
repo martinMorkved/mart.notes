@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import { generateKeyBetween } from 'fractional-indexing'
 import type { Counts, Folder } from '@shared/types'
+import { noteTitlesQuery } from '@/features/links/queries'
 import { refreshAfterRestore, trashQuery } from '@/features/trash/queries'
 import { api } from '@/lib/api'
 import { queryClient } from '@/lib/queryClient'
@@ -94,6 +95,7 @@ export function useDeleteFolder() {
     onSettled: () => {
       queryClient.invalidateQueries({ queryKey: foldersKey })
       queryClient.invalidateQueries({ queryKey: trashQuery.queryKey })
+      queryClient.invalidateQueries({ queryKey: noteTitlesQuery.queryKey })
     },
   })
 }

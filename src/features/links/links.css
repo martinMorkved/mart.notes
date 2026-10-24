@@ -1,0 +1,50 @@
+.backlinks {
+  margin-top: 4rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--rule);
+}
+
+.backlinks h2 {
+  margin: 0 0 0.75rem;
+  color: var(--ink-faint);
+  font: 400 0.6875rem/1 var(--mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.backlinks ul {
+  display: grid;
+  gap: 0.125rem;
+  margin: 0 -0.5rem;
+  padding: 0;
+  list-style: none;
+}
+
+.backlinks a {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  padding: 0.5rem;
+  border-radius: 3px;
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
+.backlinks a:hover {
+  background: var(--paper-sunk);
+  color: var(--ink);
+}
+
+.backlinks-title {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.backlinks-folder {
+  flex: none;
+  color: var(--ink-faint);
+  font: 400 0.6875rem/1.4 var(--mono);
+  letter-spacing: 0.04em;
+}

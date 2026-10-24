@@ -19,11 +19,16 @@ function toggleLink(editor: Editor) {
   editor.chain().focus().extendMarkRange('link').setLink({ href: url }).run()
 }
 
+// With text selected, that text becomes the link. Otherwise [[ is typed, which opens the note list.
 function linkToNote(editor: Editor) {
   const { from, to, empty } = editor.state.selection
-  const target = empty ? window.prompt('Name of the note to link to') : editor.state.doc.textBetween(from, to)
-  if (!target?.trim()) return
-  editor.chain().focus().insertContentAt({ from, to }, { type: 'wikiLink', attrs: { target: target.trim() } }).run()
+  if (empty) {
+    editor.chain().focus().insertContent('[[').run()
+    return
+  }
+  const target = editor.state.doc.textBetween(from, to).trim()
+  if (!target) return
+  editor.chain().focus().insertContentAt({ from, to }, { type: 'wikiLink', attrs: { target } }).run()
 }
 
 export const formatActions: FormatAction[] = [

@@ -57,3 +57,15 @@ export type SearchResult = {
   snippet: string
   updatedAt: string
 }
+
+export type NoteTitle = {
+  id: string
+  title: string
+  folderId: string
+}
+
+export type Backlink = {
+  id: string
+  title: string
+  folderName: string
+}

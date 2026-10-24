@@ -64,8 +64,20 @@
 }
 
 .prose .wikilink {
-  border-bottom: 1px dashed var(--accent);
-  cursor: default;
+  border-bottom: 1px solid var(--accent);
+  color: var(--ink);
+  cursor: pointer;
+}
+
+.prose .wikilink:hover {
+  background: color-mix(in oklab, var(--accent) 12%, transparent);
+}
+
+/* No note has this title yet; clicking makes one */
+.prose .wikilink.wikilink-missing {
+  border-bottom-style: dashed;
+  border-bottom-color: var(--ink-faint);
+  color: var(--ink-soft);
 }
 
 .prose .wikilink.ProseMirror-selectednode {

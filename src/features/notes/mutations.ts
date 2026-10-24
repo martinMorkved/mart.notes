@@ -1,6 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import type { UpdateNote } from '@shared/schemas'
 import type { Counts, Note, NoteSummary } from '@shared/types'
+import { noteTitlesQuery } from '@/features/links/queries'
 import { refreshAfterRestore, trashQuery } from '@/features/trash/queries'
 import { api } from '@/lib/api'
 import { queryClient } from '@/lib/queryClient'
@@ -28,8 +29,10 @@ export function useCreateNote() {
       if (context) queryClient.setQueryData(context.key, context.previous)
       queryClient.removeQueries({ queryKey: noteQuery(note.id).queryKey })
     },
-    onSettled: (_data, _error, note) =>
-      queryClient.invalidateQueries({ queryKey: folderNotesQuery(note.folderId).queryKey }),
+    onSettled: (_data, _error, note) => {
+      queryClient.invalidateQueries({ queryKey: folderNotesQuery(note.folderId).queryKey })
+      if (note.title) queryClient.invalidateQueries({ queryKey: noteTitlesQuery.queryKey })
+    },
   })
 }
 
@@ -56,6 +59,9 @@ export function useUpdateNote() {
             : n,
         ),
       )
+    },
+    onSuccess: (_note, { patch }) => {
+      if (patch.title !== undefined) queryClient.invalidateQueries({ queryKey: noteTitlesQuery.queryKey })
     },
     onError: (_error, { id, folderId }) => {
       showToast({ message: 'Couldn’t save the note. Check your connection.' })
@@ -90,6 +96,9 @@ export function useDeleteNote() {
     onError: (_error, _note, context) => {
       if (context) queryClient.setQueryData(context.key, context.previous)
     },
-    onSettled: () => queryClient.invalidateQueries({ queryKey: trashQuery.queryKey }),
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: trashQuery.queryKey })
+      queryClient.invalidateQueries({ queryKey: noteTitlesQuery.queryKey })
+    },
   })
 }

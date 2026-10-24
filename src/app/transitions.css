@@ -377,6 +377,44 @@ html:active-view-transition-type(theme)::view-transition-new(root) {
     vt-blot-6 var(--blot-6-time) var(--blot-6-delay) cubic-bezier(0.45, 0, 0.3, 1) both;
 }
 
+/* Note to note through a link: the old title fades with the rest of the page instead of
+   stretching into the new one, and the new title is typed out a character at a time.
+   --title-chars comes from script. */
+html:active-view-transition-type(linked-note) .note-title {
+  view-transition-name: none;
+}
+
+html:active-view-transition-type(linked-note)::view-transition-group(note-card) {
+  animation: none;
+}
+
+html:active-view-transition-type(linked-note)::view-transition-old(note-card),
+html:active-view-transition-type(linked-note)::view-transition-old(content) {
+  animation: vt-fade-out 150ms ease-out both;
+}
+
+html:active-view-transition-type(linked-note)::view-transition-new(note-card),
+html:active-view-transition-type(linked-note)::view-transition-new(content) {
+  animation: vt-fade-in 260ms 120ms ease-out both;
+}
+
+html:active-view-transition-type(linked-note)::view-transition-group(note-title-typed) {
+  animation: none;
+}
+
+html:active-view-transition-type(linked-note)::view-transition-new(note-title-typed) {
+  animation: vt-type min(calc(var(--title-chars, 12) * 45ms), 900ms) 120ms steps(var(--title-chars, 12)) both;
+}
+
+@keyframes vt-type {
+  from {
+    clip-path: inset(0 100% 0 0);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   ::view-transition-group(*),
   ::view-transition-image-pair(*),
