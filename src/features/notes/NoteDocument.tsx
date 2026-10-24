@@ -1,7 +1,9 @@
 import { EditorContent } from '@tiptap/react'
 import { useState } from 'react'
+import { flushSync } from 'react-dom'
 import { useNavigate } from 'react-router'
 import type { Note } from '@shared/types'
+import { runViewTransition } from '@/features/transitions/runViewTransition'
 import { useShortcut } from '@/lib/useShortcut'
 import { Menu } from '@/ui/Menu'
 import { SaveStatus } from './editor/SaveStatus'
@@ -32,9 +34,17 @@ export function NoteDocument({ note, folderName }: { note: Note; folderName: str
 
   function switchTo(next: NoteViewMode) {
     if (next === mode) return
-    if (next === 'markdown') return setSource(editor.getMarkdown())
-    editor.commands.setContent(source ?? '', { contentType: 'markdown', emitUpdate: false })
-    setSource(null)
+    // The panel only belongs to the text view, so it slides away or back with the switch
+    const panelMoves = panel.open ? [next === 'markdown' ? 'panel-close' : 'panel-open'] : []
+    runViewTransition({
+      types: ['switch-view', ...panelMoves],
+      update: () =>
+        flushSync(() => {
+          if (next === 'markdown') return setSource(editor.getMarkdown())
+          editor.commands.setContent(source ?? '', { contentType: 'markdown', emitUpdate: false })
+          setSource(null)
+        }),
+    })
   }
 
   useShortcut(VIEW_SHORTCUT, () => switchTo(mode === 'text' ? 'markdown' : 'text'))
@@ -52,7 +62,7 @@ export function NoteDocument({ note, folderName }: { note: Note; folderName: str
         <NoteBar noteId={note.id} folderId={note.folderId} folderName={folderName}>
           <SaveStatus state={autosave.state} updatedAt={note.updatedAt} />
           <ViewToggle mode={mode} onChange={switchTo} />
-          {mode === 'text' && <FormatPanelButton open={panel.open} onToggle={() => panel.setOpen(!panel.open)} />}
+          {mode === 'text' && <FormatPanelButton open={panel.open} onToggle={() => panel.toggle()} />}
           <Menu label="Note actions" items={[{ label: 'Move to trash', onSelect: remove, danger: true }]} />
         </NoteBar>
 
@@ -80,7 +90,7 @@ export function NoteDocument({ note, folderName }: { note: Note; folderName: str
       </article>
 
       {mode === 'text' && !panel.docked && !panel.open && <MobileToolbar editor={editor} />}
-      {panel.open && mode === 'text' && <FormatPanel editor={editor} onClose={() => panel.setOpen(false)} />}
+      {panel.open && mode === 'text' && <FormatPanel editor={editor} onClose={() => panel.toggle(false)} />}
     </div>
   )
 }

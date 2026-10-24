@@ -17,6 +17,10 @@
   view-transition-name: new-note-button;
 }
 
+.format-panel {
+  view-transition-name: format-panel;
+}
+
 /* When a note opens, an empty sheet grows from the card to the whole writing area, edge to
    edge. The note itself stays where it will end up and fades in on top, and the bar fades in
    where it stands. */
@@ -260,6 +264,55 @@ html:active-view-transition-type(new-note)::view-transition-old(note-first-line)
 
 html:active-view-transition-type(new-note)::view-transition-new(note-first-line) {
   animation: vt-fade-in 220ms 180ms ease-out both;
+}
+
+/* Formatting panel: slides in from the side it lives on, and the note glides out of its way */
+@keyframes vt-panel-in {
+  from {
+    translate: 100% 0;
+  }
+}
+
+@keyframes vt-panel-out {
+  to {
+    translate: 100% 0;
+  }
+}
+
+html:active-view-transition-type(panel-open, panel-close, switch-view)::view-transition-group(*) {
+  animation-duration: 340ms;
+}
+
+html:active-view-transition-type(panel-open)::view-transition-new(format-panel) {
+  animation: vt-panel-in 340ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+html:active-view-transition-type(panel-close)::view-transition-old(format-panel) {
+  animation: vt-panel-out 260ms cubic-bezier(0.4, 0, 1, 1) both;
+}
+
+/* Text ↔ Markdown: the note's body crossfades in place */
+html:active-view-transition-type(switch-view)::view-transition-old(note-card) {
+  animation: vt-fade-out 160ms ease-out both;
+}
+
+html:active-view-transition-type(switch-view)::view-transition-new(note-card) {
+  animation: vt-fade-in 220ms 100ms ease-out both;
+}
+
+/* On small screens the panel is a sheet at the bottom */
+@media (max-width: 71.99rem) {
+  @keyframes vt-panel-in {
+    from {
+      translate: 0 100%;
+    }
+  }
+
+  @keyframes vt-panel-out {
+    to {
+      translate: 0 100%;
+    }
+  }
 }
 
 /* Theme: ink blots spread from the click and around the page until they meet.

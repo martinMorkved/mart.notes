@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import { flushSync } from 'react-dom'
+import { runViewTransition } from '@/features/transitions/runViewTransition'
 import { useMediaQuery } from '@/lib/useMediaQuery'
 import { usePersistentState } from '@/lib/usePersistentState'
 
@@ -14,5 +16,13 @@ export function useFormatPanel() {
   const open = docked ? remembered : sheetOpen
   const setOpen = docked ? setRemembered : setSheetOpen
 
-  return { open, setOpen, docked }
+  function toggle(next = !open) {
+    if (next === open) return
+    runViewTransition({
+      types: [next ? 'panel-open' : 'panel-close'],
+      update: () => flushSync(() => setOpen(next)),
+    })
+  }
+
+  return { open, toggle, docked }
 }
