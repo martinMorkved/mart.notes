@@ -24,8 +24,12 @@ html:active-view-transition-type(open-note, new-note) .note {
   view-transition-name: none;
 }
 
-html:active-view-transition-type(open-note, new-note) .note-sheet {
+html:active-view-transition-type(open-note) .note-sheet {
   view-transition-name: note-card;
+}
+
+html:active-view-transition-type(new-note) .note-rich > p:first-child {
+  view-transition-name: note-first-line;
 }
 
 html:active-view-transition-type(open-note, new-note) .note-bar {
@@ -55,6 +59,13 @@ html[data-vt='theme'] * {
 }
 
 /* Drifts up and to the left into place while it appears, following the sheet as it opens */
+@keyframes vt-sink {
+  to {
+    opacity: 0;
+    translate: 0 2.5rem;
+  }
+}
+
 @keyframes vt-settle {
   from {
     opacity: 0;
@@ -129,8 +140,8 @@ html:active-view-transition-type(folder)::view-transition-old(note-title) {
   animation: vt-fade-out 150ms ease-out both;
 }
 
-/* Card ↔ note, and button → new note: a sheet grows from the card into the page while the
-   rest of the page steps aside. The title glides on its own. */
+/* Card ↔ note: a sheet grows from the card into the page while the rest of the page steps
+   aside. The title glides on its own. A new note has no card, so it only settles into place. */
 html:active-view-transition-type(open-note, close-note, new-note)::view-transition-old(content) {
   animation: vt-fade-out 160ms ease-out both;
 }
@@ -139,15 +150,24 @@ html:active-view-transition-type(open-note, close-note, new-note)::view-transiti
   animation: vt-fade-in 240ms 220ms ease-out both;
 }
 
-html:active-view-transition-type(open-note, close-note, new-note)::view-transition-old(note-card),
-html:active-view-transition-type(open-note, close-note, new-note)::view-transition-new(note-card) {
+html:active-view-transition-type(open-note, close-note)::view-transition-old(note-card),
+html:active-view-transition-type(open-note, close-note)::view-transition-new(note-card) {
   height: 100%;
   object-fit: cover;
   object-position: top left;
 }
 
+/* The New note button leaves and returns together with the rest of the folder */
+html:active-view-transition-type(open-note, new-note)::view-transition-old(new-note-button) {
+  animation: vt-fade-out 160ms ease-out both;
+}
+
+html:active-view-transition-type(close-note)::view-transition-new(new-note-button) {
+  animation: vt-fade-in 240ms 220ms ease-out both;
+}
+
 /* Sheet at the bottom, the note's content above it, the title and the bar on top */
-html:active-view-transition-type(open-note, new-note)::view-transition-group(note-card) {
+html:active-view-transition-type(open-note)::view-transition-group(note-card) {
   z-index: 1;
 }
 
@@ -156,34 +176,35 @@ html:active-view-transition-type(open-note, new-note)::view-transition-group(con
 }
 
 html:active-view-transition-type(open-note, new-note)::view-transition-group(note-title),
+html:active-view-transition-type(open-note, new-note)::view-transition-group(note-first-line),
 html:active-view-transition-type(open-note, new-note)::view-transition-group(note-bar) {
   z-index: 3;
 }
 
-html:active-view-transition-type(open-note, new-note)::view-transition-image-pair(note-card) {
+html:active-view-transition-type(open-note)::view-transition-image-pair(note-card) {
   overflow: hidden;
   animation: vt-sheet-open 420ms both;
 }
 
 /* Opening: no scaling. Both pictures keep their real size and the growing sheet uncovers
    the page like a window, instead of zooming the card up and the page down. */
-html:active-view-transition-type(open-note, new-note)::view-transition-old(note-card),
-html:active-view-transition-type(open-note, new-note)::view-transition-new(note-card) {
+html:active-view-transition-type(open-note)::view-transition-old(note-card),
+html:active-view-transition-type(open-note)::view-transition-new(note-card) {
   width: 100%;
   height: 100%;
   object-fit: none;
   object-position: top left;
 }
 
-html:active-view-transition-type(open-note, new-note)::view-transition-old(note-card) {
+html:active-view-transition-type(open-note)::view-transition-old(note-card) {
   animation: vt-fade-out 160ms 40ms ease-out both;
 }
 
-html:active-view-transition-type(open-note, new-note)::view-transition-new(note-card) {
+html:active-view-transition-type(open-note)::view-transition-new(note-card) {
   animation: vt-fade-in 220ms 160ms ease-out both;
 }
 
-html:active-view-transition-type(open-note, new-note)::view-transition-new(content) {
+html:active-view-transition-type(open-note)::view-transition-new(content) {
   animation: vt-settle 340ms 140ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
@@ -201,6 +222,31 @@ html:active-view-transition-type(close-note)::view-transition-old(note-card) {
 
 html:active-view-transition-type(close-note)::view-transition-new(note-card) {
   animation: vt-fade-in 160ms 260ms ease-out both;
+}
+
+/* New note: the folder sinks away, its name drops into the note's title and the line under it
+   becomes the first line to write on */
+html:active-view-transition-type(new-note)::view-transition-old(content) {
+  animation: vt-sink 260ms ease-in both;
+}
+
+html:active-view-transition-type(new-note)::view-transition-new(content) {
+  animation: vt-fade-in 240ms 200ms ease-out both;
+}
+
+html:active-view-transition-type(new-note)::view-transition-old(note-first-line),
+html:active-view-transition-type(new-note)::view-transition-new(note-first-line) {
+  height: 100%;
+  object-fit: none;
+  object-position: left center;
+}
+
+html:active-view-transition-type(new-note)::view-transition-old(note-first-line) {
+  animation: vt-fade-out 200ms ease-out both;
+}
+
+html:active-view-transition-type(new-note)::view-transition-new(note-first-line) {
+  animation: vt-fade-in 220ms 180ms ease-out both;
 }
 
 /* Theme: ink blots spread from the click and around the page until they meet.

@@ -24,7 +24,7 @@ export function FolderView() {
         title={folder.name}
         above={<FolderTrail folders={ancestorsOf(folders, id)} />}
         action={
-          <button className="button-primary" data-new-note onClick={(e) => newNote(e.currentTarget)}>
+          <button className="button-primary" data-new-note onClick={newNote}>
             <PlusIcon />
             New note
           </button>
