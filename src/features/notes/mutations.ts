@@ -31,7 +31,7 @@ export function useCreateNote() {
     },
     onSettled: (_data, _error, note) => {
       queryClient.invalidateQueries({ queryKey: folderNotesQuery(note.folderId).queryKey })
-      if (note.title) queryClient.invalidateQueries({ queryKey: noteTitlesQuery.queryKey })
+      queryClient.invalidateQueries({ queryKey: noteTitlesQuery.queryKey })
     },
   })
 }
@@ -59,6 +59,12 @@ export function useUpdateNote() {
             : n,
         ),
       )
+      if (patch.title !== undefined) {
+        const title = patch.title
+        queryClient.setQueryData(noteTitlesQuery.queryKey, (list) =>
+          list?.map((n) => (n.id === id ? { ...n, title } : n)),
+        )
+      }
     },
     onSuccess: (_note, { patch }) => {
       if (patch.title !== undefined) queryClient.invalidateQueries({ queryKey: noteTitlesQuery.queryKey })

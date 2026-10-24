@@ -1,12 +1,12 @@
 import { zValidator } from '@hono/zod-validator'
-import { and, desc, eq, isNull, ne } from 'drizzle-orm'
+import { and, desc, eq, isNull } from 'drizzle-orm'
 import { generateKeyBetween } from 'fractional-indexing'
 import { Hono } from 'hono'
 import { createNote, updateNote, idParam } from '../../shared/schemas'
 import { db } from '../db'
 import { folders, noteLinks, notes } from '../db/schema'
 import { type AppEnv, requireUser } from '../env'
-import { syncIncoming, syncOutgoing } from '../links'
+import { syncOutgoing } from '../links'
 import { ownsFolder } from './folders'
 
 const validId = zValidator('param', idParam)
@@ -53,17 +53,15 @@ export const noteRoutes = new Hono<AppEnv>()
         position: generateKeyBetween(null, first?.position ?? null),
       })
       .returning(noteColumns)
-    // A note made from a link already has links pointing to it
-    if (title) await syncIncoming({ ...note, userId })
     return c.json(note, 201)
   })
 
-  // Every titled note, for link suggestions and for telling live links from missing ones
+  // Every live note's title, for link suggestions and for showing links by the current title
   .get('/titles', async (c) => {
     const rows = await db
       .select({ id: notes.id, title: notes.title, folderId: notes.folderId })
       .from(notes)
-      .where(and(eq(notes.userId, c.var.userId), isNull(notes.deletedAt), ne(notes.title, '')))
+      .where(and(eq(notes.userId, c.var.userId), isNull(notes.deletedAt)))
       .orderBy(desc(notes.updatedAt))
     return c.json(rows)
   })
@@ -99,10 +97,7 @@ export const noteRoutes = new Hono<AppEnv>()
       .returning(noteColumns)
     if (!note) return c.json(notFound, 404)
 
-    await Promise.all([
-      patch.content !== undefined && syncOutgoing({ ...note, userId }),
-      patch.title !== undefined && syncIncoming({ ...note, userId }),
-    ])
+    if (patch.content !== undefined) await syncOutgoing({ ...note, userId })
     return c.json(note)
   })
 

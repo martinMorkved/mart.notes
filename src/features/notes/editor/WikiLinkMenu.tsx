@@ -1,7 +1,8 @@
 import { type Ref, useImperativeHandle, useState } from 'react'
 import './wikilink-menu.css'
 
-export type WikiLinkItem = { title: string; isNew: boolean }
+// id is null for a note that doesn't exist yet and is made when picked
+export type WikiLinkItem = { id: string | null; title: string }
 
 export type WikiLinkMenuHandle = { onKeyDown: (event: KeyboardEvent) => boolean }
 
@@ -41,17 +42,17 @@ export function WikiLinkMenu({ items, command, ref }: Props) {
     <div className="wikilink-menu" role="listbox" aria-label="Link to note">
       {items.map((item, i) => (
         <button
-          key={`${item.isNew}-${item.title}`}
+          key={item.id ?? `new-${item.title}`}
           role="option"
           aria-selected={i === active}
           className="wikilink-option"
-          data-new={item.isNew || undefined}
+          data-new={!item.id || undefined}
           // mousedown would take focus from the editor and close the menu before the click
           onMouseDown={(e) => e.preventDefault()}
           onMouseEnter={() => setActive(i)}
           onClick={() => command(item)}
         >
-          {item.isNew ? (
+          {!item.id ? (
             <>
               <span className="wikilink-option-hint">New note</span> {item.title}
             </>

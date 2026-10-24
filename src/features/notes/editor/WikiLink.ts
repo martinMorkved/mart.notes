@@ -1,34 +1,49 @@
 import { InputRule, mergeAttributes, Node } from '@tiptap/core'
 import { Plugin, PluginKey } from '@tiptap/pm/state'
 import { Decoration, DecorationSet } from '@tiptap/pm/view'
-import { titleKey } from '@shared/wikiLinks'
+import type { NoteTitle } from '@shared/types'
+import { NOTE_LINK, noteLinkMarkdown, TITLE_LINK, titleKey } from '@shared/wikiLinks'
 
-const WIKI_LINK = /^\[\[([^[\]|]+)(?:\|([^[\]]+))?\]\]/
-const TYPED_WIKI_LINK = /\[\[([^[\]|]+)(?:\|([^[\]]+))?\]\]$/
+const TYPED_TITLE_LINK = new RegExp(`${TITLE_LINK.source.slice(1)}$`)
+
+// A link has either a noteId (the normal case) or only a target title ([[Title]] typed by hand)
+export type WikiLinkAttrs = { noteId: string | null; label: string | null; target: string | null }
 
 export type WikiLinkStorage = {
-  // titles of the other notes, newest first, for suggestions
-  titles: string[]
-  // their title keys, so links to anything else can look missing
-  existing: Set<string>
-  open: (target: string) => void
+  // every live note, newest first
+  notes: NoteTitle[]
+  byId: Map<string, string>
+  // title key → id, for [[Title]] links
+  byKey: Map<string, string>
+  currentId: string | null
+  open: (attrs: WikiLinkAttrs) => void
+  // makes a note with this title and returns its id
+  create: (title: string) => string
 }
 
 declare module '@tiptap/core' {
-  interface Commands<ReturnType> {
-    wikiLink: {
-      insertWikiLink: (target: string) => ReturnType
-    }
-  }
   interface Storage {
     wikiLink: WikiLinkStorage
   }
 }
 
-// Set on a transaction after `existing` changes, so the missing marks are drawn again
+// Set on a transaction after the storage changes, so the missing marks are drawn again
 export const wikiLinksChanged = new PluginKey('wikiLinksChanged')
 
-// [[Target]] or [[Target|label]], kept as one unit so markdown round-trips without escaping
+export const displayTitle = (title: string) => title.trim() || 'Untitled'
+
+// The attributes for a link to `text`: to the note with that title if there is one
+export function linkTo(storage: WikiLinkStorage, text: string): WikiLinkAttrs {
+  const noteId = storage.byKey.get(titleKey(text))
+  if (noteId) return { noteId, label: displayTitle(storage.byId.get(noteId) ?? text), target: null }
+  return { noteId: null, label: null, target: text.trim() }
+}
+
+function isMissing(storage: WikiLinkStorage, attrs: WikiLinkAttrs) {
+  return attrs.noteId ? !storage.byId.has(attrs.noteId) : !storage.byKey.has(titleKey(attrs.target ?? ''))
+}
+
+// Kept as one unit, so the markdown round-trips without escaping
 export const WikiLink = Node.create({
   name: 'wikiLink',
   group: 'inline',
@@ -38,8 +53,17 @@ export const WikiLink = Node.create({
 
   addAttributes() {
     return {
-      target: { default: '' },
-      label: { default: null },
+      noteId: {
+        default: null,
+        parseHTML: (el) => el.getAttribute('data-note-id'),
+        renderHTML: (attrs) => (attrs.noteId ? { 'data-note-id': attrs.noteId } : {}),
+      },
+      label: { default: null, parseHTML: (el) => el.textContent, renderHTML: () => ({}) },
+      target: {
+        default: null,
+        parseHTML: (el) => el.getAttribute('data-target'),
+        renderHTML: (attrs) => (attrs.target ? { 'data-target': attrs.target } : {}),
+      },
     }
   },
 
@@ -50,7 +74,7 @@ export const WikiLink = Node.create({
   renderHTML({ node, HTMLAttributes }) {
     return [
       'span',
-      mergeAttributes(HTMLAttributes, { 'data-wiki-link': node.attrs.target, class: 'wikilink' }),
+      mergeAttributes(HTMLAttributes, { 'data-wiki-link': '', class: 'wikilink' }),
       node.attrs.label ?? node.attrs.target,
     ]
   },
@@ -62,25 +86,37 @@ export const WikiLink = Node.create({
   markdownTokenizer: {
     name: 'wikiLink',
     level: 'inline',
-    start: '[[',
+    start: '[',
     tokenize(src) {
-      const match = WIKI_LINK.exec(src)
-      if (!match) return
-      return { type: 'wikiLink', raw: match[0], target: match[1].trim(), label: match[2]?.trim() }
+      const link = NOTE_LINK.exec(src)
+      if (link) return { type: 'wikiLink', raw: link[0], noteId: link[2], label: link[1] }
+      const title = TITLE_LINK.exec(src)
+      if (title) return { type: 'wikiLink', raw: title[0], target: title[1].trim(), label: title[2]?.trim() }
     },
   },
 
   parseMarkdown(token) {
-    return { type: 'wikiLink', attrs: { target: token.target, label: token.label ?? null } }
+    return {
+      type: 'wikiLink',
+      attrs: { noteId: token.noteId ?? null, label: token.label ?? null, target: token.target ?? null },
+    }
   },
 
   renderMarkdown(node) {
-    const { target, label } = node.attrs ?? {}
+    const { noteId, label, target } = (node.attrs ?? {}) as WikiLinkAttrs
+    if (noteId) return noteLinkMarkdown(noteId, label || 'Untitled')
     return label ? `[[${target}|${label}]]` : `[[${target}]]`
   },
 
   addStorage(): WikiLinkStorage {
-    return { titles: [], existing: new Set(), open: () => {} }
+    return {
+      notes: [],
+      byId: new Map(),
+      byKey: new Map(),
+      currentId: null,
+      open: () => {},
+      create: () => '',
+    }
   },
 
   addProseMirrorPlugins() {
@@ -92,7 +128,7 @@ export const WikiLink = Node.create({
           decorations: (state) => {
             const missing: Decoration[] = []
             state.doc.descendants((node, pos) => {
-              if (node.type.name === this.name && !storage.existing.has(titleKey(node.attrs.target))) {
+              if (node.type.name === this.name && isMissing(storage, node.attrs as WikiLinkAttrs)) {
                 missing.push(Decoration.node(pos, pos + node.nodeSize, { class: 'wikilink-missing' }))
               }
             })
@@ -101,7 +137,7 @@ export const WikiLink = Node.create({
           // A link is one unit you can't type inside, so a click follows it
           handleClickOn: (_view, _pos, node, _nodePos, event, direct) => {
             if (!direct || node.type.name !== this.name || event.button !== 0) return false
-            storage.open(node.attrs.target)
+            storage.open(node.attrs as WikiLinkAttrs)
             return true
           },
         },
@@ -109,22 +145,12 @@ export const WikiLink = Node.create({
     ]
   },
 
-  addCommands() {
-    return {
-      insertWikiLink:
-        (target) =>
-        ({ commands }) =>
-          commands.insertContent({ type: this.name, attrs: { target } }),
-    }
-  },
-
   addInputRules() {
     return [
       new InputRule({
-        find: TYPED_WIKI_LINK,
+        find: TYPED_TITLE_LINK,
         handler: ({ state, range, match }) => {
-          const node = this.type.create({ target: match[1].trim(), label: match[2]?.trim() ?? null })
-          state.tr.replaceWith(range.from, range.to, node)
+          state.tr.replaceWith(range.from, range.to, this.type.create(linkTo(this.storage, match[1])))
         },
       }),
     ]

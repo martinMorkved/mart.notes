@@ -31,7 +31,7 @@ export function NoteDocument({ note, folderName }: { note: Note; folderName: str
   const [source, setSource] = useState<string | null>(null)
   const panel = useFormatPanel()
   const editor = useNoteEditor(note.content, (content) => autosave.change({ content }))
-  useWikiLinks(editor, note)
+  useWikiLinks(editor, note, source === null)
 
   const mode: NoteViewMode = source === null ? 'text' : 'markdown'
 

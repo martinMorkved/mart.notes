@@ -1,4 +1,5 @@
 import type { Editor } from '@tiptap/react'
+import { linkTo } from '../editor/WikiLink'
 
 export type FormatAction = {
   label: string
@@ -28,7 +29,8 @@ function linkToNote(editor: Editor) {
   }
   const target = editor.state.doc.textBetween(from, to).trim()
   if (!target) return
-  editor.chain().focus().insertContentAt({ from, to }, { type: 'wikiLink', attrs: { target } }).run()
+  const attrs = linkTo(editor.storage.wikiLink, target)
+  editor.chain().focus().insertContentAt({ from, to }, { type: 'wikiLink', attrs }).run()
 }
 
 export const formatActions: FormatAction[] = [
