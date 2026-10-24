@@ -4,7 +4,7 @@ export function plainExcerpt(markdown: string) {
     .replace(/!\[[^\]]*\]\([^)]*\)/g, ' ')
     .replace(/\[\[([^\]|]+)(\|([^\]]+))?\]\]/g, (_, target, __, label) => label ?? target)
     .replace(/\[([^\]]+)\]\([^)]*\)/g, '$1')
-    .replace(/^\s{0,3}(#{1,6}|>|[-*+]|\d+\.)\s+/gm, '')
+    .replace(/^\s*(#{1,6}|>|[-*+]|\d+\.)\s+(\[[ xX]\]\s+)?/gm, '')
     .replace(/[*_~`]/g, '')
     .replace(/\s+/g, ' ')
     .trim()

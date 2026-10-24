@@ -31,3 +31,5 @@ export type CreateNote = z.input<typeof createNote>
 export type UpdateNote = z.infer<typeof updateNote>
 
 export const idParam = z.object({ id: z.uuid() })
+
+export const searchParams = z.object({ q: z.string().max(200) })

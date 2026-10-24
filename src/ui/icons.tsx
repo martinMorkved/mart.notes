@@ -43,7 +43,14 @@ export const TrashIcon = (props: SVGProps<SVGSVGElement>) => (
   </Icon>
 )
 
-export const MenuIcon = (props: SVGProps<SVGSVGElement>) => (
+export const SearchIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon {...props}>
+    <circle cx="7" cy="7" r="4.25" />
+    <path d="M10.25 10.25 13.5 13.5" />
+  </Icon>
+)
+
+export const MenuIcon =(props: SVGProps<SVGSVGElement>) => (
   <Icon {...props}>
     <path d="M2.5 5h11M2.5 11h11" />
   </Icon>

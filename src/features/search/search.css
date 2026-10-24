@@ -1,0 +1,132 @@
+.search-field {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.25rem;
+  margin: -0.75rem 0 -0.5rem;
+  padding: 0 0.125rem 0 0.5rem;
+  border: 1px solid var(--rule);
+  border-radius: 3px;
+  background: var(--paper);
+  color: var(--ink-faint);
+}
+
+.search-field:focus-within {
+  border-color: var(--ink-faint);
+  color: var(--ink-soft);
+}
+
+.search-field input {
+  min-width: 0;
+  padding: 0.375rem 0;
+  border: 0;
+  background: none;
+  font-size: 0.9375rem;
+  outline: none;
+}
+
+.search-field input::placeholder {
+  color: var(--ink-faint);
+}
+
+/* The clear button is our own */
+.search-field input::-webkit-search-cancel-button {
+  display: none;
+}
+
+.search-field .icon-button {
+  width: 1.75rem;
+  height: 1.75rem;
+}
+
+.search-field .icon-button:hover {
+  background: var(--paper-sunk);
+}
+
+.search-keys {
+  padding: 0 0.375rem;
+  color: var(--ink-faint);
+  font: 400 0.6875rem/1 var(--mono);
+}
+
+@media (hover: none) {
+  .search-keys {
+    display: none;
+  }
+}
+
+.search-results {
+  display: grid;
+  gap: 1.25rem;
+}
+
+.search-results ul {
+  display: grid;
+  gap: 0.125rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.search-hit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: baseline;
+  gap: 0.125rem 0.75rem;
+  padding: 0.4375rem 0.5rem;
+  border-radius: 3px;
+  color: var(--ink-soft);
+  text-decoration: none;
+}
+
+.search-hit:hover,
+.search-hit:focus-visible {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.search-hit[aria-current='page'] {
+  background: var(--paper);
+  box-shadow: inset 2px 0 0 var(--accent);
+  color: var(--ink);
+}
+
+.search-hit-title {
+  overflow: hidden;
+  font-size: 0.9375rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-hit-title[data-untitled] {
+  color: var(--ink-faint);
+  font-style: italic;
+}
+
+.search-hit-folder {
+  max-width: 7rem;
+  overflow: hidden;
+  color: var(--ink-faint);
+  font: 400 0.6875rem/1.4 var(--mono);
+  letter-spacing: 0.04em;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.search-hit-snippet {
+  display: -webkit-box;
+  grid-column: 1 / -1;
+  overflow: hidden;
+  color: var(--ink-faint);
+  font-size: 0.8125rem;
+  line-height: 1.45;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+
+.search-hit mark {
+  border-radius: 2px;
+  background: color-mix(in oklab, var(--accent) 22%, transparent);
+  color: var(--ink);
+}

@@ -126,7 +126,7 @@ export const notes = pgTable(
     deletedAt: timestamp({ withTimezone: true }),
     ...timestamps,
     search: tsvector().generatedAlwaysAs(
-      sql`setweight(to_tsvector('norwegian', title), 'A') || setweight(to_tsvector('norwegian', content), 'B')`,
+      sql`setweight(to_tsvector('simple', title), 'A') || setweight(to_tsvector('simple', content), 'B')`,
     ),
   },
   (t) => [

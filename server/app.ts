@@ -3,6 +3,7 @@ import { HTTPException } from 'hono/http-exception'
 import { auth } from './auth'
 import { folderRoutes } from './routes/folders'
 import { noteRoutes } from './routes/notes'
+import { searchRoutes } from './routes/search'
 import { trashRoutes } from './routes/trash'
 
 const app = new Hono().basePath('/api')
@@ -11,6 +12,7 @@ app.on(['GET', 'POST'], '/auth/*', (c) => auth.handler(c.req.raw))
 
 app.route('/folders', folderRoutes)
 app.route('/notes', noteRoutes)
+app.route('/search', searchRoutes)
 app.route('/trash', trashRoutes)
 
 app.notFound((c) => c.json({ error: 'Not found' }, 404))
