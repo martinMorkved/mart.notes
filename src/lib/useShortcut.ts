@@ -1,17 +1,18 @@
 import { useEffect, useRef } from 'react'
+import { matchesKeys } from './keys'
 
-// Ctrl/Cmd + key, anywhere on the page
-export function useShortcut(key: string, handler: () => void) {
+// combo like "Mod-Shift-m", listened for anywhere on the page
+export function useShortcut(combo: string, handler: () => void) {
   const handlerRef = useRef(handler)
   handlerRef.current = handler
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
-      if (!(event.ctrlKey || event.metaKey) || event.key.toLowerCase() !== key) return
+      if (!matchesKeys(event, combo)) return
       event.preventDefault()
       handlerRef.current()
     }
     window.addEventListener('keydown', onKeyDown)
     return () => window.removeEventListener('keydown', onKeyDown)
-  }, [key])
+  }, [combo])
 }

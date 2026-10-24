@@ -3,6 +3,7 @@ import type { Editor } from '@tiptap/react'
 export type FormatAction = {
   label: string
   shortcut: string
+  keys?: string
   run: (editor: Editor) => void
   isActive?: (editor: Editor) => boolean
 }
@@ -28,30 +29,35 @@ export const formatActions: FormatAction[] = [
   {
     label: 'Heading',
     shortcut: '## ',
+    keys: 'Mod-Alt-2',
     run: (e) => e.chain().focus().toggleHeading({ level: 2 }).run(),
     isActive: (e) => e.isActive('heading', { level: 2 }),
   },
   {
     label: 'Subheading',
     shortcut: '### ',
+    keys: 'Mod-Alt-3',
     run: (e) => e.chain().focus().toggleHeading({ level: 3 }).run(),
     isActive: (e) => e.isActive('heading', { level: 3 }),
   },
   {
     label: 'Bold',
     shortcut: '**text**',
+    keys: 'Mod-b',
     run: (e) => e.chain().focus().toggleBold().run(),
     isActive: (e) => e.isActive('bold'),
   },
   {
     label: 'Italic',
     shortcut: '*text*',
+    keys: 'Mod-i',
     run: (e) => e.chain().focus().toggleItalic().run(),
     isActive: (e) => e.isActive('italic'),
   },
   {
     label: 'Strikethrough',
     shortcut: '~~text~~',
+    keys: 'Mod-Shift-s',
     run: (e) => e.chain().focus().toggleStrike().run(),
     isActive: (e) => e.isActive('strike'),
   },
@@ -70,36 +76,42 @@ export const formatActions: FormatAction[] = [
   {
     label: 'List',
     shortcut: '- ',
+    keys: 'Mod-Shift-8',
     run: (e) => e.chain().focus().toggleBulletList().run(),
     isActive: (e) => e.isActive('bulletList'),
   },
   {
     label: 'Numbered list',
     shortcut: '1. ',
+    keys: 'Mod-Shift-7',
     run: (e) => e.chain().focus().toggleOrderedList().run(),
     isActive: (e) => e.isActive('orderedList'),
   },
   {
     label: 'Checklist',
     shortcut: '[ ] ',
+    keys: 'Mod-Shift-9',
     run: (e) => e.chain().focus().toggleTaskList().run(),
     isActive: (e) => e.isActive('taskList'),
   },
   {
     label: 'Quote',
     shortcut: '> ',
+    keys: 'Mod-Shift-b',
     run: (e) => e.chain().focus().toggleBlockquote().run(),
     isActive: (e) => e.isActive('blockquote'),
   },
   {
     label: 'Code',
     shortcut: '`code`',
+    keys: 'Mod-e',
     run: (e) => e.chain().focus().toggleCode().run(),
     isActive: (e) => e.isActive('code'),
   },
   {
     label: 'Code block',
     shortcut: '``` ',
+    keys: 'Mod-Alt-c',
     run: (e) => e.chain().focus().toggleCodeBlock().run(),
     isActive: (e) => e.isActive('codeBlock'),
   },

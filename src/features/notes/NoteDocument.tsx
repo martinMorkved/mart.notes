@@ -10,7 +10,7 @@ import { SourceEditor } from './editor/SourceEditor'
 import { TitleInput } from './editor/TitleInput'
 import { useAutosave } from './editor/useAutosave'
 import { useNoteEditor } from './editor/useNoteEditor'
-import { ViewToggle, type NoteViewMode } from './editor/ViewToggle'
+import { VIEW_SHORTCUT, ViewToggle, type NoteViewMode } from './editor/ViewToggle'
 import { FormatPanel } from './format/FormatPanel'
 import { FormatPanelButton } from './format/FormatPanelButton'
 import { useDeleteNote } from './mutations'
@@ -36,7 +36,7 @@ export function NoteDocument({ note, folderName }: { note: Note; folderName: str
     setSource(null)
   }
 
-  useShortcut('e', () => switchTo(mode === 'text' ? 'markdown' : 'text'))
+  useShortcut(VIEW_SHORTCUT, () => switchTo(mode === 'text' ? 'markdown' : 'text'))
 
   function remove() {
     autosave.flush()

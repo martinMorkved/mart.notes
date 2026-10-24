@@ -1,4 +1,5 @@
 import { useEditorState, type Editor } from '@tiptap/react'
+import { formatKeys } from '@/lib/keys'
 import { CloseIcon } from '@/ui/icons'
 import { formatActions } from './formatActions'
 import './format-panel.css'
@@ -32,7 +33,10 @@ export function FormatPanel({ editor, onClose }: { editor: Editor; onClose: () =
               onClick={() => action.run(editor)}
             >
               <span className="format-label">{action.label}</span>
-              <code className="format-shortcut">{action.shortcut}</code>
+              <span className="format-hints">
+                <code className="format-shortcut">{action.shortcut}</code>
+                {action.keys && <kbd className="format-keys">{formatKeys(action.keys)}</kbd>}
+              </span>
             </button>
           </li>
         ))}
