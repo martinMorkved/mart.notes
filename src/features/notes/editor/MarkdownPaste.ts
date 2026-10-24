@@ -5,11 +5,14 @@ import { markdownManager } from './markdownManager'
 const BLOCK_SYNTAX = /^(#{1,6}\s|[-*+]\s|\d+\.\s|>\s|```|\|.*\|\s*$)/m
 const INLINE_SYNTAX = /\*\*[^*\n]+\*\*|\[\[[^\]\n]+\]\]|\[[^\]\n]+\]\([^)\n]+\)/
 
+// Code editors like VS Code put coloured spans on the clipboard; that isn't formatting worth keeping
+const RICH_HTML = /<(h[1-6]|ul|ol|li|table|strong|b|em|i|a|blockquote|img)[\s>]/i
+
 function looksLikeMarkdown(text: string) {
   return BLOCK_SYNTAX.test(text) || INLINE_SYNTAX.test(text)
 }
 
-// Plain-text pastes that look like markdown are parsed; rich pastes from web pages keep their formatting
+// Pastes that look like markdown are parsed; rich pastes from web pages keep their formatting
 export const MarkdownPaste = Extension.create({
   name: 'markdownPaste',
 
@@ -20,7 +23,8 @@ export const MarkdownPaste = Extension.create({
         props: {
           handlePaste: (_view, event) => {
             const text = event.clipboardData?.getData('text/plain')
-            if (!text || event.clipboardData?.types.includes('text/html')) return false
+            const html = event.clipboardData?.getData('text/html')
+            if (!text || (html && RICH_HTML.test(html))) return false
             if (!looksLikeMarkdown(text)) return false
             if (editor.isActive('codeBlock')) return false
             const doc = markdownManager(editor).parse(text)
