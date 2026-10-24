@@ -167,6 +167,19 @@ html:active-view-transition-type(close-note)::view-transition-new(new-note-butto
 }
 
 /* Sheet at the bottom, the note's content above it, the title and the bar on top */
+/* Opening takes a little longer than closing; it's the bigger reveal */
+html:active-view-transition-type(open-note)::view-transition-group(*) {
+  animation-duration: 560ms;
+}
+
+html:active-view-transition-type(open-note)::view-transition-old(content) {
+  animation: vt-fade-out 220ms ease-out both;
+}
+
+html:active-view-transition-type(open-note)::view-transition-new(note-bar) {
+  animation: vt-fade-in 320ms 270ms ease-out both;
+}
+
 html:active-view-transition-type(open-note)::view-transition-group(note-card) {
   z-index: 1;
 }
@@ -183,7 +196,7 @@ html:active-view-transition-type(open-note, new-note)::view-transition-group(not
 
 html:active-view-transition-type(open-note)::view-transition-image-pair(note-card) {
   overflow: hidden;
-  animation: vt-sheet-open 420ms both;
+  animation: vt-sheet-open 560ms both;
 }
 
 /* Opening: no scaling. Both pictures keep their real size and the growing sheet uncovers
@@ -197,7 +210,7 @@ html:active-view-transition-type(open-note)::view-transition-new(note-card) {
 }
 
 html:active-view-transition-type(open-note)::view-transition-old(note-card) {
-  animation: vt-fade-out 160ms 40ms ease-out both;
+  animation: vt-fade-out 220ms 60ms ease-out both;
 }
 
 html:active-view-transition-type(open-note)::view-transition-new(note-card) {
@@ -205,7 +218,7 @@ html:active-view-transition-type(open-note)::view-transition-new(note-card) {
 }
 
 html:active-view-transition-type(open-note)::view-transition-new(content) {
-  animation: vt-settle 340ms 140ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  animation: vt-settle 460ms 190ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 html:active-view-transition-type(open-note, new-note)::view-transition-new(note-bar) {
