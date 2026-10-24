@@ -1,39 +1,31 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
-import { useMemo, useState } from 'react'
-import { Link } from 'react-router'
+import { useState } from 'react'
 import { foldersQuery } from '@/features/folders/queries'
-import { ancestorsOf, flattenTree } from '@/features/folders/tree'
-import { useFolderClick } from '@/features/transitions/useFolderClick'
+import { plural } from '@/lib/text'
 import { usePersistentState } from '@/lib/usePersistentState'
 import { PageHeader } from '@/ui/PageHeader'
-import { NoteTaskLists } from './NoteTaskLists'
+import { FolderTaskGroups } from './FolderTaskGroups'
 import { tasksQuery } from './queries'
-import { countTasks, hasShownTasks, type Showing } from './visibleTasks'
+import { countTasks, isActive } from './visibleTasks'
 import './tasks.css'
 
 // How long a ticked task stays, struck through, before it's gone (the CSS fade fits inside)
 const LEAVE_AFTER = 900
 
-// Every checkbox from every note, grouped by folder in the order of the tree
+// Every checkbox from every note, grouped by folder in the order of the tree. Notes where
+// everything is done wait at the bottom until asked for.
 export function TasksView() {
   const { data: notes } = useSuspenseQuery(tasksQuery)
   const { data: folders } = useSuspenseQuery(foldersQuery)
-  const [showAll, setShowAll] = usePersistentState('tasks:show-completed', false)
+  const [showCompleted, setShowCompleted] = usePersistentState('tasks:show-completed', false)
   const [leaving, setLeaving] = useState<Set<string>>(new Set())
-  const folderClick = useFolderClick()
+  // completed notes brought back up, which keep their done tasks showing
+  const [risen, setRisen] = useState<Set<string>>(new Set())
+  const onRise = (noteId: string) => setRisen((set) => new Set(set).add(noteId))
 
-  const showing: Showing = useMemo(() => ({ showAll, leaving }), [showAll, leaving])
   const { open, done } = countTasks(notes)
-  const groups = useMemo(
-    () =>
-      flattenTree(folders)
-        .map(({ folder }) => ({
-          folder,
-          notes: notes.filter((n) => n.folderId === folder.id && hasShownTasks(n, showing)),
-        }))
-        .filter((group) => group.notes.length),
-    [notes, folders, showing],
-  )
+  const active = notes.filter((n) => isActive(n, leaving))
+  const completed = notes.filter((n) => !active.includes(n))
 
   function onTicked(key: string) {
     setLeaving((set) => new Set(set).add(key))
@@ -48,45 +40,39 @@ export function TasksView() {
 
   return (
     <section className="page">
-      <PageHeader
-        title="To-do"
-        action={
-          done > 0 && (
-            <button className="button-quiet" onClick={() => setShowAll(!showAll)}>
-              {showAll ? 'Hide completed' : 'Show completed'}
-            </button>
-          )
-        }
-      >
+      <PageHeader title="To-do">
         {open} open · {done} done
       </PageHeader>
 
-      {groups.length ? (
-        <div className="task-groups">
-          {groups.map(({ folder, notes }) => {
-            const trail = ancestorsOf(folders, folder.id)
-            return (
-              <section key={folder.id} className="task-folder">
-                <h2>
-                  {trail.length > 0 && <span className="task-trail">{trail.map((f) => f.name).join(' / ')} /</span>}
-                  <Link to={`/folder/${folder.id}`} onClick={folderClick(folder.id)}>
-                    <span data-folder-label>{folder.name}</span>
-                  </Link>
-                </h2>
-                {notes.map((note) => (
-                  <NoteTaskLists key={note.noteId} note={note} showing={showing} onTicked={onTicked} />
-                ))}
-              </section>
-            )
-          })}
-        </div>
+      {active.length > 0 ? (
+        <FolderTaskGroups
+          notes={active}
+          folders={folders}
+          showing={{ showAll: false, leaving }}
+          onTicked={onTicked}
+          doneOpen={risen}
+          onRise={onRise}
+        />
       ) : (
         <div className="empty-state">
           <p>{notes.length ? 'Everything is done.' : 'No checkboxes in any note yet.'}</p>
-          {done > 0 && (
-            <button className="button-quiet" onClick={() => setShowAll(true)}>
-              Show completed
-            </button>
+        </div>
+      )}
+
+      {completed.length > 0 && (
+        <div className="task-completed">
+          <button className="button-quiet" onClick={() => setShowCompleted(!showCompleted)}>
+            {showCompleted ? 'Hide completed notes' : `Show ${plural(completed.length, 'completed note')}`}
+          </button>
+          {showCompleted && (
+            <FolderTaskGroups
+              notes={completed}
+              folders={folders}
+              showing={{ showAll: true, leaving }}
+              onTicked={onTicked}
+              doneOpen={risen}
+              onRise={onRise}
+            />
           )}
         </div>
       )}

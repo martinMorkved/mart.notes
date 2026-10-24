@@ -163,3 +163,47 @@
 .task-list .task-done-toggle {
   margin-top: 0.375rem;
 }
+
+.task-parent {
+  color: var(--ink-faint);
+  font: 400 0.75rem/1 var(--mono);
+  letter-spacing: 0.02em;
+}
+
+/* The note under "in …" isn't struck through with the task */
+.task[data-checked] .task-parent {
+  display: inline-block;
+  text-decoration: none;
+}
+
+/* Notes where everything is done, under the active ones */
+.task-completed {
+  display: grid;
+  gap: 2rem;
+  margin-top: 3rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--rule);
+}
+
+.task-completed > .button-quiet {
+  justify-self: start;
+}
+
+.task-completed .task-note {
+  opacity: 0.75;
+}
+
+/* A completed note rising back to the active ones: the card glides over the page, which
+   fades from where it was scrolled to where the card lands */
+html:active-view-transition-type(task-note-up)::view-transition-group(task-note-moving) {
+  z-index: 5;
+  animation-duration: 620ms;
+}
+
+html:active-view-transition-type(task-note-up)::view-transition-old(content) {
+  animation: vt-fade-out 200ms ease-out both;
+}
+
+html:active-view-transition-type(task-note-up)::view-transition-new(content) {
+  animation: vt-fade-in 300ms 200ms ease-out both;
+}

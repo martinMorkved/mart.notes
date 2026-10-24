@@ -174,3 +174,17 @@ export const noteLinks = pgTable(
   },
   (t) => [primaryKey({ columns: [t.sourceId, t.targetId] }), index().on(t.targetId)],
 )
+
+// When each checkbox was ticked, since markdown has no room for it. A task is known by its
+// text within the note; the rows follow the note's content on every save.
+export const taskDone = pgTable(
+  'task_done',
+  {
+    noteId: uuid()
+      .notNull()
+      .references(() => notes.id, { onDelete: 'cascade' }),
+    text: text().notNull(),
+    doneAt: timestamp({ withTimezone: true }).notNull().defaultNow(),
+  },
+  (t) => [primaryKey({ columns: [t.noteId, t.text] })],
+)

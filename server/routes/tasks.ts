@@ -8,6 +8,7 @@ import type { NoteTasks } from '../../shared/types'
 import { db } from '../db'
 import { notes } from '../db/schema'
 import { type AppEnv, requireUser } from '../env'
+import { doneTimes, syncTaskDone } from '../taskDone'
 
 const taskParams = z.object({ id: z.uuid(), index: z.coerce.number().int().min(0) })
 
@@ -35,8 +36,16 @@ export const taskRoutes = new Hono<AppEnv>()
       )
       .orderBy(notes.position)
 
+    const times = await doneTimes(rows.map((r) => r.noteId))
     const result: NoteTasks[] = rows
-      .map(({ content, ...note }) => ({ ...note, lists: parseTasks(content) }))
+      .map(({ content, ...note }) => {
+        const done = times.get(note.noteId)
+        const lists = parseTasks(content).map((list) => ({
+          ...list,
+          tasks: list.tasks.map((t) => (t.checked && done?.has(t.text) ? { ...t, doneAt: done.get(t.text) } : t)),
+        }))
+        return { ...note, lists }
+      })
       .filter((note) => note.lists.length)
     return c.json(result)
   })
@@ -58,5 +67,6 @@ export const taskRoutes = new Hono<AppEnv>()
       .set({ content })
       .where(live)
       .returning({ content: notes.content, updatedAt: notes.updatedAt })
+    await syncTaskDone(id, note.content, content)
     return c.json(saved)
   })

@@ -15,6 +15,13 @@
       "when": 1792877199571,
       "tag": "0001_search_simple",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1792882629614,
+      "tag": "0002_task_done",
+      "breakpoints": true
     }
   ]
 }

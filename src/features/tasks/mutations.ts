@@ -6,9 +6,12 @@ import { HttpError, queryClient } from '@/lib/queryClient'
 import { showToast } from '@/ui/toast'
 import { tasksQuery } from './queries'
 
-type Input = { note: NoteTasks; index: number; text: string; checked: boolean }
+// `subtasks`: the tasks nested under it, which the server ticks along with it
+type Input = { note: NoteTasks; index: number; text: string; checked: boolean; subtasks?: number[] }
 
-function tick(list: NoteTasks[] | undefined, { note, index, checked }: Input) {
+function tick(list: NoteTasks[] | undefined, { note, index, checked, subtasks = [] }: Input) {
+  const changed = new Set(checked ? [index, ...subtasks] : [index])
+  const doneAt = checked ? new Date().toISOString() : undefined
   return list?.map((n) =>
     n.noteId !== note.noteId
       ? n
@@ -16,7 +19,7 @@ function tick(list: NoteTasks[] | undefined, { note, index, checked }: Input) {
           ...n,
           lists: n.lists.map((l) => ({
             ...l,
-            tasks: l.tasks.map((t) => (t.index === index ? { ...t, checked } : t)),
+            tasks: l.tasks.map((t) => (changed.has(t.index) ? { ...t, checked, doneAt } : t)),
           })),
         },
   )

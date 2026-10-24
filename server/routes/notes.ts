@@ -7,6 +7,7 @@ import { db } from '../db'
 import { folders, noteLinks, notes } from '../db/schema'
 import { type AppEnv, requireUser } from '../env'
 import { syncOutgoing } from '../links'
+import { syncTaskDone } from '../taskDone'
 import { ownsFolder } from './folders'
 
 const validId = zValidator('param', idParam)
@@ -89,14 +90,21 @@ export const noteRoutes = new Hono<AppEnv>()
   .patch('/:id', validId, zValidator('json', updateNote), async (c) => {
     const patch = c.req.valid('json')
     const userId = c.var.userId
-    const [note] = await db
-      .update(notes)
-      .set(patch)
-      .where(liveNote(userId, c.req.param('id')))
-      .returning(noteColumns)
+    const id = c.req.param('id')
+    // The text from before, to see which checkboxes were ticked in this save
+    const [before] =
+      patch.content !== undefined
+        ? await db.select({ content: notes.content }).from(notes).where(liveNote(userId, id))
+        : []
+    const [note] = await db.update(notes).set(patch).where(liveNote(userId, id)).returning(noteColumns)
     if (!note) return c.json(notFound, 404)
 
-    if (patch.content !== undefined) await syncOutgoing({ ...note, userId })
+    if (patch.content !== undefined) {
+      await Promise.all([
+        syncOutgoing({ ...note, userId }),
+        before && syncTaskDone(note.id, before.content, note.content),
+      ])
+    }
     return c.json(note)
   })
 

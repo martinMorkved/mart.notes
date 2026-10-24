@@ -1,30 +1,33 @@
 import { useState } from 'react'
 import type { Task, TaskList } from '@shared/tasks'
+import { splitTasks, type TaskLine } from './taskTree'
 import { TaskRow } from './TaskRow'
 
 type Props = {
   list: TaskList
   // "Show completed" for the whole page
   showAll: boolean
+  // start with the done tasks showing
+  doneOpen: boolean
   isLeaving: (task: Task) => boolean
   onChange: (task: Task, checked: boolean, hides: boolean) => void
 }
 
 // A list's name, its open tasks, and right under them its done ones, which each list shows
 // or hides on its own
-export function TaskListBlock({ list, showAll, isLeaving, onChange }: Props) {
-  const [showDone, setShowDone] = useState(false)
-
-  // A task on its way out stays among the open ones until it's gone
-  const open = list.tasks.filter((t) => !t.checked || isLeaving(t))
-  const done = list.tasks.filter((t) => t.checked && !isLeaving(t))
+export function TaskListBlock({ list, showAll, doneOpen, isLeaving, onChange }: Props) {
+  const [showDone, setShowDone] = useState(doneOpen)
   const doneShown = showAll || showDone
 
-  const rows = (tasks: Task[]) =>
-    tasks.map((task) => (
+  // A task on its way out still counts as open until it's gone
+  const { open, done } = splitTasks(list.tasks, (t) => t.checked && !isLeaving(t))
+
+  const rows = (lines: TaskLine[]) =>
+    lines.map(({ task, parent }) => (
       <TaskRow
         key={task.index}
         task={task}
+        parent={parent}
         leaving={isLeaving(task)}
         onChange={(checked) => onChange(task, checked, !doneShown)}
       />
