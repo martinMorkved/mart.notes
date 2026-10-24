@@ -99,3 +99,25 @@ export function useDeleteFolder() {
     },
   })
 }
+
+export function useMoveFolder() {
+  return useMutation({
+    scope: folderWrites,
+    mutationFn: ({ id, parentId, position }: { id: string; parentId: string | null; position: string }) =>
+      api<Folder>('PATCH', `/folders/${id}/move`, { parentId, position }),
+    onMutate: async ({ id, parentId, position }) => {
+      await queryClient.cancelQueries({ queryKey: foldersKey })
+      const previous = snapshotFolders()
+      queryClient.setQueryData(
+        foldersKey,
+        previous.map((f) => (f.id === id ? { ...f, parentId, position } : f)),
+      )
+      return { previous }
+    },
+    onError: (_error, _input, context) => {
+      showToast({ message: 'Couldn’t move the folder. Check your connection.' })
+      restoreFolders(context)
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: foldersKey }),
+  })
+}

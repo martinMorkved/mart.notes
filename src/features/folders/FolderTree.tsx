@@ -1,12 +1,14 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { PlusIcon } from '@/ui/icons'
+import { FolderPicker } from './FolderPicker'
 import { FolderTreeContext } from './FolderTreeContext'
 import { FolderTreeLevel } from './FolderTreeLevel'
 import { foldersQuery } from './queries'
-import { childrenByParent } from './tree'
+import { childrenByParent, subtreeIds } from './tree'
 import { useExpandedFolders } from './useExpandedFolders'
 import { useFolderActions } from './useFolderActions'
+import { useTreeDrops } from './useTreeDrops'
 import './folders.css'
 
 export function FolderTree({ activeFolderId }: { activeFolderId: string | null }) {
@@ -18,6 +20,7 @@ export function FolderTree({ activeFolderId }: { activeFolderId: string | null }
     activeFolderId,
     onExpand: (id) => toggle(id, true),
   })
+  useTreeDrops(folders, (id) => toggle(id, true))
 
   return (
     <FolderTreeContext value={{ children, expanded, toggle, activeFolderId, actions }}>
@@ -36,6 +39,16 @@ export function FolderTree({ activeFolderId }: { activeFolderId: string | null }
           )}
         </div>
       </div>
+      {actions.moving && (
+        <FolderPicker
+          title={`Move “${actions.moving.name}” to…`}
+          currentId={actions.moving.parentId}
+          hidden={subtreeIds(folders, actions.moving.id)}
+          allowTopLevel
+          onPick={(target) => actions.moveInto(actions.moving!, target)}
+          onClose={() => actions.startMove(null)}
+        />
+      )}
     </FolderTreeContext>
   )
 }

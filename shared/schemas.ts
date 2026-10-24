@@ -33,3 +33,20 @@ export type UpdateNote = z.infer<typeof updateNote>
 export const idParam = z.object({ id: z.uuid() })
 
 export const searchParams = z.object({ q: z.string().max(200) })
+
+// A fractional-indexing key, placed between two neighbours by the client
+const position = z.string().regex(/^[0-9A-Za-z]{1,64}$/)
+
+// Without a position, the note goes on top of its new folder
+export const moveNote = z.object({
+  folderId: z.uuid(),
+  position: position.optional(),
+})
+
+export const moveFolder = z.object({
+  parentId: z.uuid().nullable(),
+  position,
+})
+
+export type MoveNote = z.infer<typeof moveNote>
+export type MoveFolder = z.infer<typeof moveFolder>

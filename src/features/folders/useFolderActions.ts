@@ -1,8 +1,8 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import type { Folder } from '@shared/types'
-import { useCreateFolder, useDeleteFolder, useRenameFolder } from './mutations'
-import { subtreeIds } from './tree'
+import { useCreateFolder, useDeleteFolder, useMoveFolder, useRenameFolder } from './mutations'
+import { placeFolder, subtreeIds } from './tree'
 
 type Options = {
   folders: Folder[]
@@ -13,9 +13,12 @@ type Options = {
 export function useFolderActions({ folders, activeFolderId, onExpand }: Options) {
   const navigate = useNavigate()
   const [editingId, setEditingId] = useState<string | null>(null)
+  // the folder whose "Move to…" picker is open
+  const [moving, setMoving] = useState<Folder | null>(null)
   const createFolder = useCreateFolder()
   const renameFolder = useRenameFolder()
   const deleteFolder = useDeleteFolder()
+  const moveFolder = useMoveFolder()
 
   function create(parentId: string | null) {
     const id = crypto.randomUUID()
@@ -36,5 +39,21 @@ export function useFolderActions({ folders, activeFolderId, onExpand }: Options)
     deleteFolder.mutate(folder)
   }
 
-  return { editingId, startRename: setEditingId, finishRename, create, remove }
+  // Into the picked folder, after what's already there, or to the top level
+  function moveInto(folder: Folder, target: Folder | null) {
+    setMoving(null)
+    if (target && target.id !== folder.parentId) onExpand(target.id)
+    moveFolder.mutate({ id: folder.id, ...placeFolder(folders, folder, target, 'inside') })
+  }
+
+  return {
+    editingId,
+    startRename: setEditingId,
+    finishRename,
+    create,
+    remove,
+    moving,
+    startMove: setMoving,
+    moveInto,
+  }
 }

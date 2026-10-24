@@ -2,7 +2,8 @@ import { EditorContent } from '@tiptap/react'
 import { useState } from 'react'
 import { flushSync } from 'react-dom'
 import { useNavigate } from 'react-router'
-import type { Note } from '@shared/types'
+import type { Folder, Note } from '@shared/types'
+import { FolderPicker } from '@/features/folders/FolderPicker'
 import { Backlinks } from '@/features/links/Backlinks'
 import { useWikiLinks } from '@/features/links/useWikiLinks'
 import { runViewTransition } from '@/features/transitions/runViewTransition'
@@ -18,7 +19,7 @@ import { FormatPanel } from './format/FormatPanel'
 import { FormatPanelButton } from './format/FormatPanelButton'
 import { MobileToolbar } from './format/MobileToolbar'
 import { useFormatPanel } from './format/useFormatPanel'
-import { useDeleteNote } from './mutations'
+import { useDeleteNote, useMoveNote } from './mutations'
 import { NoteBar } from './NoteBar'
 import './editor/prose.css'
 import './note.css'
@@ -26,6 +27,8 @@ import './note.css'
 export function NoteDocument({ note, folderName }: { note: Note; folderName: string }) {
   const navigate = useNavigate()
   const deleteNote = useDeleteNote()
+  const moveNote = useMoveNote()
+  const [moving, setMoving] = useState(false)
   const autosave = useAutosave(note.id, note.folderId)
   const [title, setTitle] = useState(note.title)
   const [source, setSource] = useState<string | null>(null)
@@ -58,6 +61,12 @@ export function NoteDocument({ note, folderName }: { note: Note; folderName: str
     deleteNote.mutate({ ...note, title })
   }
 
+  function moveTo(folder: Folder) {
+    setMoving(false)
+    autosave.flush()
+    moveNote({ note: { ...note, title }, folderId: folder.id, folderName: folder.name })
+  }
+
   return (
     <div className="note-layout" data-panel={(panel.open && mode === 'text') || undefined}>
       <div className="note-sheet" aria-hidden="true" />
@@ -66,8 +75,22 @@ export function NoteDocument({ note, folderName }: { note: Note; folderName: str
           <SaveStatus state={autosave.state} updatedAt={note.updatedAt} />
           <ViewToggle mode={mode} onChange={switchTo} />
           {mode === 'text' && <FormatPanelButton open={panel.open} onToggle={() => panel.toggle()} />}
-          <Menu label="Note actions" items={[{ label: 'Move to trash', onSelect: remove, danger: true }]} />
+          <Menu
+            label="Note actions"
+            items={[
+              { label: 'Move to…', onSelect: () => setMoving(true) },
+              { label: 'Move to trash', onSelect: remove, danger: true },
+            ]}
+          />
         </NoteBar>
+        {moving && (
+          <FolderPicker
+            title={`Move “${title || 'Untitled'}” to…`}
+            currentId={note.folderId}
+            onPick={(folder) => folder && moveTo(folder)}
+            onClose={() => setMoving(false)}
+          />
+        )}
 
         <TitleInput
           value={title}

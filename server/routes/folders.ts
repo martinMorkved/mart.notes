@@ -2,7 +2,7 @@ import { zValidator } from '@hono/zod-validator'
 import { and, desc, eq, isNull, sql } from 'drizzle-orm'
 import { generateKeyBetween } from 'fractional-indexing'
 import { Hono } from 'hono'
-import { createFolder, updateFolder, idParam } from '../../shared/schemas'
+import { createFolder, idParam, moveFolder, updateFolder } from '../../shared/schemas'
 import type { Counts } from '../../shared/types'
 import { db } from '../db'
 import { folders, notes } from '../db/schema'
@@ -85,6 +85,33 @@ export const folderRoutes = new Hono<AppEnv>()
       .update(folders)
       .set(c.req.valid('json'))
       .where(liveFolder(c.var.userId, c.req.param('id')))
+      .returning(folderColumns)
+    return folder ? c.json(folder) : c.json(notFound, 404)
+  })
+
+  .patch('/:id/move', validId, zValidator('json', moveFolder), async (c) => {
+    const { parentId, position } = c.req.valid('json')
+    const userId = c.var.userId
+    const id = c.req.param('id')
+    if (parentId && !(await ownsFolder(userId, parentId))) return c.json(notFound, 404)
+
+    // A folder can't go inside itself or anything below it
+    if (parentId) {
+      const { rows } = await db.execute<{ inside: boolean }>(sql`
+        with recursive tree as (
+          select id from folders where id = ${id}
+          union all
+          select f.id from folders f join tree on f.parent_id = tree.id
+        )
+        select exists (select 1 from tree where id = ${parentId}) as inside
+      `)
+      if (rows[0].inside) return c.json({ error: 'A folder can’t go inside itself' }, 400)
+    }
+
+    const [folder] = await db
+      .update(folders)
+      .set({ parentId, position })
+      .where(liveFolder(userId, id))
       .returning(folderColumns)
     return folder ? c.json(folder) : c.json(notFound, 404)
   })

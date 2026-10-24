@@ -1,8 +1,8 @@
 import { zValidator } from '@hono/zod-validator'
-import { and, desc, eq, isNull } from 'drizzle-orm'
+import { and, desc, eq, isNull, sql } from 'drizzle-orm'
 import { generateKeyBetween } from 'fractional-indexing'
 import { Hono } from 'hono'
-import { createNote, updateNote, idParam } from '../../shared/schemas'
+import { createNote, idParam, moveNote, updateNote } from '../../shared/schemas'
 import { db } from '../db'
 import { folders, noteLinks, notes } from '../db/schema'
 import { type AppEnv, requireUser } from '../env'
@@ -26,6 +26,18 @@ function liveNote(userId: string, id: string) {
 }
 
 const notFound = { error: 'Note not found' }
+const folderNotFound = { error: 'Folder not found' }
+
+// A position above every note in the folder, trashed ones too, so a restore can't collide
+async function topPosition(folderId: string) {
+  const [first] = await db
+    .select({ position: notes.position })
+    .from(notes)
+    .where(eq(notes.folderId, folderId))
+    .orderBy(notes.position)
+    .limit(1)
+  return generateKeyBetween(null, first?.position ?? null)
+}
 
 export const noteRoutes = new Hono<AppEnv>()
   .use(requireUser)
@@ -33,25 +45,12 @@ export const noteRoutes = new Hono<AppEnv>()
   .post('/', zValidator('json', createNote), async (c) => {
     const { id, folderId, title } = c.req.valid('json')
     const userId = c.var.userId
-    if (!(await ownsFolder(userId, folderId))) return c.json({ error: 'Folder not found' }, 404)
+    if (!(await ownsFolder(userId, folderId))) return c.json(folderNotFound, 404)
 
     // New notes go on top
-    const [first] = await db
-      .select({ position: notes.position })
-      .from(notes)
-      .where(eq(notes.folderId, folderId))
-      .orderBy(notes.position)
-      .limit(1)
-
     const [note] = await db
       .insert(notes)
-      .values({
-        id,
-        userId,
-        folderId,
-        title,
-        position: generateKeyBetween(null, first?.position ?? null),
-      })
+      .values({ id, userId, folderId, title, position: await topPosition(folderId) })
       .returning(noteColumns)
     return c.json(note, 201)
   })
@@ -99,6 +98,20 @@ export const noteRoutes = new Hono<AppEnv>()
 
     if (patch.content !== undefined) await syncOutgoing({ ...note, userId })
     return c.json(note)
+  })
+
+  .patch('/:id/move', validId, zValidator('json', moveNote), async (c) => {
+    const { folderId, position } = c.req.valid('json')
+    const userId = c.var.userId
+    if (!(await ownsFolder(userId, folderId))) return c.json(folderNotFound, 404)
+
+    const [note] = await db
+      .update(notes)
+      // Moving isn't editing, so the date on the card stays
+      .set({ folderId, position: position ?? (await topPosition(folderId)), updatedAt: sql`${notes.updatedAt}` })
+      .where(liveNote(userId, c.req.param('id')))
+      .returning(noteColumns)
+    return note ? c.json(note) : c.json(notFound, 404)
   })
 
   .delete('/:id', validId, async (c) => {
