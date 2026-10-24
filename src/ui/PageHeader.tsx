@@ -12,7 +12,7 @@ export function PageHeader({ title, above, action, children }: Props) {
     <header className="page-header">
       {above}
       <div className="page-title-row">
-        <h1>{title}</h1>
+        <h1 data-page-title>{title}</h1>
         {action}
       </div>
       {children && <p className="page-subtitle">{children}</p>}

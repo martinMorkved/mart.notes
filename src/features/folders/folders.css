@@ -49,6 +49,7 @@
 }
 
 .tree-link {
+  display: block;
   overflow: hidden;
   padding: 0.3125rem 0.25rem;
   color: var(--ink-soft);
@@ -56,6 +57,15 @@
   text-decoration: none;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Sized to the text, so the name morphs into the page heading without stretching */
+.tree-label {
+  display: inline-block;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: top;
 }
 
 .tree-link[aria-current='page'] {

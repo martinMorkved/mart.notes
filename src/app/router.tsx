@@ -9,6 +9,7 @@ import { TrashView } from '@/features/trash/TrashView'
 import { AppLayout } from './AppLayout'
 import { NotFound } from './errors/NotFound'
 import { RouteError } from './errors/RouteError'
+import { RootRoute } from './RootRoute'
 import {
   loadFolder,
   loadNote,
@@ -20,6 +21,7 @@ import {
 
 export const router = createBrowserRouter([
   {
+    element: <RootRoute />,
     errorElement: <RouteError />,
     children: [
       { path: '/sign-in', loader: redirectIfSignedIn, element: <SignInPage /> },

@@ -1,0 +1,275 @@
+/* Elements that move on their own during a transition. Cards, buttons and folder names get
+   their names from script, only for the transition that needs them. */
+.content {
+  view-transition-name: content;
+}
+
+.note {
+  view-transition-name: note-card;
+}
+
+.note-title {
+  view-transition-name: note-title;
+}
+
+/* Sits in the same spot in every folder, so it stays put instead of fading with the notes */
+[data-new-note] {
+  view-transition-name: new-note-button;
+}
+
+/* When a note opens, an empty sheet grows from the card to the whole writing area, edge to
+   edge. The note itself stays where it will end up and fades in on top, and the bar fades in
+   where it stands. */
+html:active-view-transition-type(open-note, new-note) .note {
+  view-transition-name: none;
+}
+
+html:active-view-transition-type(open-note, new-note) .note-sheet {
+  view-transition-name: note-card;
+}
+
+html:active-view-transition-type(open-note, new-note) .note-bar {
+  view-transition-name: note-bar;
+}
+
+/* During a theme change the whole page is one image, so the ink covers everything */
+html[data-vt='theme'] * {
+  view-transition-name: none !important;
+}
+
+::view-transition-group(*) {
+  animation-duration: 420ms;
+  animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes vt-fade-out {
+  to {
+    opacity: 0;
+  }
+}
+
+@keyframes vt-fade-in {
+  from {
+    opacity: 0;
+  }
+}
+
+/* Drifts up and to the left into place while it appears, following the sheet as it opens */
+@keyframes vt-settle {
+  from {
+    opacity: 0;
+    translate: 2rem 1.25rem;
+  }
+}
+
+/* The paper the card is made of. The note page has no background of its own, so without
+   this the growing box would be invisible. */
+@keyframes vt-sheet-open {
+  0%,
+  65% {
+    background-color: var(--paper-raised);
+    box-shadow:
+      0 0 0 1px var(--rule),
+      0 24px 48px -28px rgb(0 0 0 / 0.45);
+  }
+  100% {
+    background-color: transparent;
+    box-shadow:
+      0 0 0 1px transparent,
+      0 24px 48px -28px transparent;
+  }
+}
+
+@keyframes vt-sheet-close {
+  0% {
+    background-color: transparent;
+    box-shadow:
+      0 0 0 1px transparent,
+      0 24px 48px -28px transparent;
+  }
+  35%,
+  100% {
+    background-color: var(--paper-raised);
+    box-shadow:
+      0 0 0 1px var(--rule),
+      0 24px 48px -28px rgb(0 0 0 / 0.45);
+  }
+}
+
+/* Folder to folder: the notes fade where they stand, and only the folder name moves,
+   gliding from the sidebar into the heading */
+html:active-view-transition-type(folder)::view-transition-old(content) {
+  animation: vt-fade-out 180ms ease-out both;
+}
+
+html:active-view-transition-type(folder)::view-transition-new(content) {
+  animation: vt-fade-in 280ms 120ms ease-out both;
+}
+
+html:active-view-transition-type(folder)::view-transition-group(folder-title) {
+  animation-duration: 520ms;
+}
+
+html:active-view-transition-type(folder)::view-transition-old(folder-title),
+html:active-view-transition-type(folder)::view-transition-new(folder-title) {
+  height: 100%;
+  object-fit: fill;
+}
+
+html:active-view-transition-type(folder)::view-transition-old(folder-title) {
+  animation: vt-fade-out 260ms ease-out both;
+}
+
+html:active-view-transition-type(folder)::view-transition-new(folder-title) {
+  animation: vt-fade-in 300ms 160ms ease-out both;
+}
+
+html:active-view-transition-type(folder)::view-transition-old(note-card),
+html:active-view-transition-type(folder)::view-transition-old(note-title) {
+  animation: vt-fade-out 150ms ease-out both;
+}
+
+/* Card ↔ note, and button → new note: a sheet grows from the card into the page while the
+   rest of the page steps aside. The title glides on its own. */
+html:active-view-transition-type(open-note, close-note, new-note)::view-transition-old(content) {
+  animation: vt-fade-out 160ms ease-out both;
+}
+
+html:active-view-transition-type(open-note, close-note, new-note)::view-transition-new(content) {
+  animation: vt-fade-in 240ms 220ms ease-out both;
+}
+
+html:active-view-transition-type(open-note, close-note, new-note)::view-transition-old(note-card),
+html:active-view-transition-type(open-note, close-note, new-note)::view-transition-new(note-card) {
+  height: 100%;
+  object-fit: cover;
+  object-position: top left;
+}
+
+/* Sheet at the bottom, the note's content above it, the title and the bar on top */
+html:active-view-transition-type(open-note, new-note)::view-transition-group(note-card) {
+  z-index: 1;
+}
+
+html:active-view-transition-type(open-note, new-note)::view-transition-group(content) {
+  z-index: 2;
+}
+
+html:active-view-transition-type(open-note, new-note)::view-transition-group(note-title),
+html:active-view-transition-type(open-note, new-note)::view-transition-group(note-bar) {
+  z-index: 3;
+}
+
+html:active-view-transition-type(open-note, new-note)::view-transition-image-pair(note-card) {
+  overflow: hidden;
+  animation: vt-sheet-open 420ms both;
+}
+
+/* Opening: no scaling. Both pictures keep their real size and the growing sheet uncovers
+   the page like a window, instead of zooming the card up and the page down. */
+html:active-view-transition-type(open-note, new-note)::view-transition-old(note-card),
+html:active-view-transition-type(open-note, new-note)::view-transition-new(note-card) {
+  width: 100%;
+  height: 100%;
+  object-fit: none;
+  object-position: top left;
+}
+
+html:active-view-transition-type(open-note, new-note)::view-transition-old(note-card) {
+  animation: vt-fade-out 160ms 40ms ease-out both;
+}
+
+html:active-view-transition-type(open-note, new-note)::view-transition-new(note-card) {
+  animation: vt-fade-in 220ms 160ms ease-out both;
+}
+
+html:active-view-transition-type(open-note, new-note)::view-transition-new(content) {
+  animation: vt-settle 340ms 140ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+html:active-view-transition-type(open-note, new-note)::view-transition-new(note-bar) {
+  animation: vt-fade-in 240ms 200ms ease-out both;
+}
+
+html:active-view-transition-type(close-note)::view-transition-image-pair(note-card) {
+  animation: vt-sheet-close 420ms both;
+}
+
+html:active-view-transition-type(close-note)::view-transition-old(note-card) {
+  animation: vt-fade-out 120ms ease-out both;
+}
+
+html:active-view-transition-type(close-note)::view-transition-new(note-card) {
+  animation: vt-fade-in 160ms 260ms ease-out both;
+}
+
+/* Theme: ink blots spread from the click and around the page until they meet.
+   Positions, sizes and speeds come from inkBlots.ts. */
+@property --blot-1 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --blot-2 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --blot-3 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --blot-4 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --blot-5 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+@property --blot-6 {
+  syntax: '<length>';
+  inherits: false;
+  initial-value: 0px;
+}
+
+@keyframes vt-blot-1 { to { --blot-1: var(--blot-1-r); } }
+@keyframes vt-blot-2 { to { --blot-2: var(--blot-2-r); } }
+@keyframes vt-blot-3 { to { --blot-3: var(--blot-3-r); } }
+@keyframes vt-blot-4 { to { --blot-4: var(--blot-4-r); } }
+@keyframes vt-blot-5 { to { --blot-5: var(--blot-5-r); } }
+@keyframes vt-blot-6 { to { --blot-6: var(--blot-6-r); } }
+
+html:active-view-transition-type(theme)::view-transition-old(root) {
+  animation: none;
+}
+
+html:active-view-transition-type(theme)::view-transition-new(root) {
+  mix-blend-mode: normal;
+  mask-image:
+    radial-gradient(circle at var(--blot-1-x) var(--blot-1-y), #000 calc(var(--blot-1) - 32px), transparent var(--blot-1)),
+    radial-gradient(circle at var(--blot-2-x) var(--blot-2-y), #000 calc(var(--blot-2) - 32px), transparent var(--blot-2)),
+    radial-gradient(circle at var(--blot-3-x) var(--blot-3-y), #000 calc(var(--blot-3) - 32px), transparent var(--blot-3)),
+    radial-gradient(circle at var(--blot-4-x) var(--blot-4-y), #000 calc(var(--blot-4) - 32px), transparent var(--blot-4)),
+    radial-gradient(circle at var(--blot-5-x) var(--blot-5-y), #000 calc(var(--blot-5) - 32px), transparent var(--blot-5)),
+    radial-gradient(circle at var(--blot-6-x) var(--blot-6-y), #000 calc(var(--blot-6) - 32px), transparent var(--blot-6));
+  animation:
+    vt-blot-1 var(--blot-1-time) var(--blot-1-delay) cubic-bezier(0.45, 0, 0.3, 1) both,
+    vt-blot-2 var(--blot-2-time) var(--blot-2-delay) cubic-bezier(0.45, 0, 0.3, 1) both,
+    vt-blot-3 var(--blot-3-time) var(--blot-3-delay) cubic-bezier(0.45, 0, 0.3, 1) both,
+    vt-blot-4 var(--blot-4-time) var(--blot-4-delay) cubic-bezier(0.45, 0, 0.3, 1) both,
+    vt-blot-5 var(--blot-5-time) var(--blot-5-delay) cubic-bezier(0.45, 0, 0.3, 1) both,
+    vt-blot-6 var(--blot-6-time) var(--blot-6-delay) cubic-bezier(0.45, 0, 0.3, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-image-pair(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}

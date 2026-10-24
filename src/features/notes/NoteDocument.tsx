@@ -47,8 +47,9 @@ export function NoteDocument({ note, folderName }: { note: Note; folderName: str
 
   return (
     <div className="note-layout" data-panel={(panel.open && mode === 'text') || undefined}>
+      <div className="note-sheet" aria-hidden="true" />
       <article className="note">
-        <NoteBar folderId={note.folderId} folderName={folderName}>
+        <NoteBar noteId={note.id} folderId={note.folderId} folderName={folderName}>
           <SaveStatus state={autosave.state} updatedAt={note.updatedAt} />
           <ViewToggle mode={mode} onChange={switchTo} />
           {mode === 'text' && <FormatPanelButton open={panel.open} onToggle={() => panel.setOpen(!panel.open)} />}

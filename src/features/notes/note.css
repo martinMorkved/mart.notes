@@ -1,6 +1,14 @@
 .note-layout {
+  position: relative;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
+}
+
+/* An empty surface the size of the writing area; the open-note transition grows it from the card */
+.note-sheet {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
 }
 
 .note {
@@ -88,11 +96,16 @@
 }
 
 .note-title {
+  width: fit-content;
+  max-width: 100%;
   margin-bottom: 1.5rem;
 }
 
 .note-title input {
-  width: 100%;
+  /* sizes to the text, so the title morphs from the card without stretching */
+  field-sizing: content;
+  min-width: 6ch;
+  max-width: 100%;
   padding: 0;
   border: 0;
   background: transparent;

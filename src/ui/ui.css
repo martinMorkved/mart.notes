@@ -176,6 +176,7 @@
 }
 
 .page-title-row h1 {
+  max-width: 100%;
   font: 400 clamp(2rem, 5vw, 3rem) / 1.05 var(--serif);
   letter-spacing: -0.02em;
   overflow-wrap: anywhere;

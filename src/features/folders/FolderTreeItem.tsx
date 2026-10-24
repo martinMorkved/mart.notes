@@ -1,6 +1,7 @@
 import type { CSSProperties, ReactNode } from 'react'
 import { NavLink } from 'react-router'
 import type { Folder } from '@shared/types'
+import { useFolderClick } from '@/features/transitions/useFolderClick'
 import { ChevronIcon } from '@/ui/icons'
 import { Menu } from '@/ui/Menu'
 import { useFolderTree } from './FolderTreeContext'
@@ -12,6 +13,7 @@ export function FolderTreeItem({ folder, depth, children }: Props) {
   const { children: childMap, expanded, toggle, activeFolderId, actions } = useFolderTree()
   const hasChildren = Boolean(childMap.get(folder.id)?.length)
   const isOpen = expanded.has(folder.id)
+  const folderClick = useFolderClick()
 
   return (
     <li
@@ -33,8 +35,10 @@ export function FolderTreeItem({ folder, depth, children }: Props) {
         {actions.editingId === folder.id ? (
           <RenameInput initial={folder.name} onDone={(name) => actions.finishRename(folder, name)} />
         ) : (
-          <NavLink className="tree-link" to={`/folder/${folder.id}`}>
-            {folder.name}
+          <NavLink className="tree-link" to={`/folder/${folder.id}`} onClick={folderClick(folder.id)}>
+            <span className="tree-label" data-folder-label>
+              {folder.name}
+            </span>
           </NavLink>
         )}
 
