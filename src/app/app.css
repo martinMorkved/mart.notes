@@ -126,6 +126,14 @@
   min-width: 0;
 }
 
+/* Fixed to the viewport so the sticky note bar and the page share one sheet of paper */
+.content,
+.note-bar {
+  background-image: var(--paper-texture);
+  background-size: 360px 360px;
+  background-attachment: fixed;
+}
+
 .page {
   max-width: 72rem;
   padding: 1.5rem 1rem 6rem;
