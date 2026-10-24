@@ -2,6 +2,7 @@ import { useEditorState, type Editor } from '@tiptap/react'
 import { formatKeys } from '@/lib/keys'
 import { CloseIcon } from '@/ui/icons'
 import { formatActions } from './formatActions'
+import { TableTools } from './TableTools'
 import './format-panel.css'
 
 export function FormatPanel({ editor, onClose }: { editor: Editor; onClose: () => void }) {
@@ -21,6 +22,8 @@ export function FormatPanel({ editor, onClose }: { editor: Editor; onClose: () =
       <p className="format-panel-intro">
         Select some text and pick a style. The grey hint shows what you can type instead.
       </p>
+
+      <TableTools editor={editor} />
 
       <ul className="format-list">
         {formatActions.map((action, i) => (
