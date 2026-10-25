@@ -1,5 +1,6 @@
 import { useRef, useState } from 'react'
 import { NavLink } from 'react-router'
+import { ArchiveLink } from '@/features/archive/ArchiveLink'
 import { AccountMenu } from '@/features/auth/AccountMenu'
 import { FolderTree } from '@/features/folders/FolderTree'
 import { SearchField } from '@/features/search/SearchField'
@@ -43,6 +44,7 @@ export function Sidebar({ activeFolderId }: { activeFolderId: string | null }) {
           <CheckIcon />
           To-do
         </NavLink>
+        <ArchiveLink />
         <NavLink to="/trash" className="sidebar-link">
           <TrashIcon />
           Trash

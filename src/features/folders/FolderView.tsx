@@ -1,5 +1,6 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useParams } from 'react-router'
+import { ArchivedNotice } from '@/features/archive/ArchivedNotice'
 import { NoteGrid } from '@/features/notes/NoteGrid'
 import { folderNotesQuery } from '@/features/notes/queries'
 import { useNewNote } from '@/features/notes/useNewNote'
@@ -32,6 +33,7 @@ export function FolderView() {
       >
         {plural(notes.length, 'note')}
       </PageHeader>
+      <ArchivedNotice folderId={id} />
       <NoteGrid notes={notes} onNewNote={newNote} />
     </section>
   )

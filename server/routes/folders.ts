@@ -15,6 +15,7 @@ export const folderColumns = {
   parentId: folders.parentId,
   name: folders.name,
   position: folders.position,
+  archivedAt: folders.archivedAt,
 }
 
 export const noteSummaryColumns = {
@@ -133,6 +134,50 @@ export const folderRoutes = new Hono<AppEnv>()
         where folder_id in (select id from tree) and deleted_at is null returning 1
       )
       select (select count(*) from f)::int as folders, (select count(*) from n)::int as notes
+    `)
+    return rows[0].folders ? c.json(rows[0]) : c.json(notFound, 404)
+  })
+
+  // A subfolder archived on its own earlier keeps its own timestamp, so it stays archived
+  // when this one comes back
+  .post('/:id/archive', validId, async (c) => {
+    const { rows } = await db.execute<Counts>(sql`
+      with recursive tree as (
+        select id from folders
+        where id = ${c.req.param('id')} and user_id = ${c.var.userId}
+          and deleted_at is null and archived_at is null
+        union all
+        select f.id from folders f join tree on f.parent_id = tree.id
+        where f.deleted_at is null and f.archived_at is null
+      ),
+      f as (
+        update folders set archived_at = now() where id in (select id from tree) returning 1
+      )
+      select (select count(*) from f)::int as folders,
+        (select count(*) from notes where folder_id in (select id from tree) and deleted_at is null)::int as notes
+    `)
+    return rows[0].folders ? c.json(rows[0]) : c.json(notFound, 404)
+  })
+
+  // Only the top of an archived subtree can come back, never a folder inside one
+  .post('/:id/unarchive', validId, async (c) => {
+    const { rows } = await db.execute<Counts>(sql`
+      with recursive target as (
+        select f.id, f.archived_at from folders f left join folders p on p.id = f.parent_id
+        where f.id = ${c.req.param('id')} and f.user_id = ${c.var.userId}
+          and f.deleted_at is null and f.archived_at is not null and p.archived_at is null
+      ),
+      tree as (
+        select id from target
+        union all
+        select f.id from folders f join tree on f.parent_id = tree.id
+        where f.archived_at = (select archived_at from target)
+      ),
+      f as (
+        update folders set archived_at = null where id in (select id from tree) returning 1
+      )
+      select (select count(*) from f)::int as folders,
+        (select count(*) from notes where folder_id in (select id from tree) and deleted_at is null)::int as notes
     `)
     return rows[0].folders ? c.json(rows[0]) : c.json(notFound, 404)
   })

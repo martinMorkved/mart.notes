@@ -4,7 +4,12 @@ import type { Folder, NoteSummary } from '@shared/types'
 // What's being dragged, or dropped on: a note card or a folder in the tree
 export type DragData = { type: 'note'; note: NoteSummary } | { type: 'folder'; folder: Folder }
 
+// Things that are only dropped on: the Archive link, which takes folders
+export type DropData = DragData | { type: 'archive' }
+
 export const dataOf = (item: Active | Over | null | undefined) => item?.data.current as DragData | undefined
+
+export const dropDataOf = (over: Over | null | undefined) => over?.data.current as DropData | undefined
 
 // A folder row is split in three: the top and bottom place the dragged folder next to it,
 // the middle puts it inside

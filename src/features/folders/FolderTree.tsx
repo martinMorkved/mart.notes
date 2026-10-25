@@ -4,7 +4,7 @@ import { PlusIcon } from '@/ui/icons'
 import { FolderPicker } from './FolderPicker'
 import { FolderTreeContext } from './FolderTreeContext'
 import { FolderTreeLevel } from './FolderTreeLevel'
-import { foldersQuery } from './queries'
+import { treeFoldersQuery } from './queries'
 import { childrenByParent, subtreeIds } from './tree'
 import { useExpandedFolders } from './useExpandedFolders'
 import { useFolderActions } from './useFolderActions'
@@ -12,7 +12,7 @@ import { useTreeDrops } from './useTreeDrops'
 import './folders.css'
 
 export function FolderTree({ activeFolderId }: { activeFolderId: string | null }) {
-  const { data: folders } = useSuspenseQuery(foldersQuery)
+  const { data: folders } = useSuspenseQuery(treeFoldersQuery)
   const children = useMemo(() => childrenByParent(folders), [folders])
   const { expanded, toggle } = useExpandedFolders(folders, activeFolderId)
   const actions = useFolderActions({

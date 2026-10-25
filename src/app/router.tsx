@@ -1,4 +1,5 @@
 import { createBrowserRouter } from 'react-router'
+import { ArchiveView } from '@/features/archive/ArchiveView'
 import { ForgotPasswordPage } from '@/features/auth/ForgotPasswordPage'
 import { ResetPasswordPage } from '@/features/auth/ResetPasswordPage'
 import { SignInPage } from '@/features/auth/SignInPage'
@@ -45,6 +46,7 @@ export const router = createBrowserRouter([
                 lazy: () => import('@/features/notes/NoteView').then((m) => ({ Component: m.NoteView })),
               },
               { path: '/todo', loader: loadTasks, element: <TasksView /> },
+              { path: '/archive', element: <ArchiveView /> },
               { path: '/trash', loader: loadTrash, element: <TrashView /> },
               { path: '*', element: <NotFound /> },
             ],

@@ -1,6 +1,7 @@
 import { NavLink } from 'react-router'
 import type { Folder } from '@shared/types'
 import { useFolderClick } from '@/features/transitions/useFolderClick'
+import { ArchivedMark } from './ArchivedMark'
 
 type Props = { folder: Folder; parentName: string | null }
 
@@ -15,7 +16,12 @@ export function FolderHit({ folder, parentName }: Props) {
             {folder.name}
           </span>
         </span>
-        {parentName && <span className="search-hit-folder">{parentName}</span>}
+        {(parentName || folder.archivedAt) && (
+          <span className="search-hit-folder">
+            {folder.archivedAt && <ArchivedMark />}
+            {parentName}
+          </span>
+        )}
       </NavLink>
     </li>
   )

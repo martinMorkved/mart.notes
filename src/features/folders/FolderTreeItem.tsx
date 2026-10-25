@@ -31,6 +31,7 @@ export function FolderTreeItem({ folder, depth, children }: Props) {
       role="treeitem"
       aria-expanded={hasChildren ? isOpen : undefined}
       aria-selected={folder.id === activeFolderId}
+      data-tree-folder={folder.id}
     >
       <div
         ref={(node) => {
@@ -70,6 +71,7 @@ export function FolderTreeItem({ folder, depth, children }: Props) {
             { label: 'New folder inside', onSelect: () => actions.create(folder.id) },
             { label: 'Rename', onSelect: () => actions.startRename(folder.id) },
             { label: 'Move to…', onSelect: () => actions.startMove(folder) },
+            { label: 'Archive', onSelect: () => actions.archive(folder) },
             { label: 'Move to trash', onSelect: () => actions.remove(folder), danger: true },
           ]}
         />

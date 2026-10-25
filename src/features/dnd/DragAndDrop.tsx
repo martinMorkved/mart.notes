@@ -11,21 +11,25 @@ import {
   useSensors,
 } from '@dnd-kit/core'
 import { type ReactNode, useState } from 'react'
-import { type DragData, dataOf } from './dragData'
+import { type DragData, type DropData, dataOf } from './dragData'
 import { DragPreview } from './DragPreview'
 import { dropTargetOf } from './dropTarget'
 import { type DropTarget, DropTargetContext } from './DropTargetContext'
 import { suppressNextClick } from './suppressClick'
 import './dnd.css'
 
-const isType = (type: DragData['type']) => (c: { data: { current?: unknown } }) =>
-  (c.data.current as DragData | undefined)?.type === type
+const isType = (type: DropData['type']) => (c: { data: { current?: unknown } }) =>
+  (c.data.current as DropData | undefined)?.type === type
 
 // A folder under the pointer wins, so a card can be dropped on the sidebar. Otherwise a card
-// sorts among the cards nearest to it.
+// sorts among the cards nearest to it. Only folders go to the archive.
 const collision: CollisionDetection = (args) => {
-  const folderHits = pointerWithin({ ...args, droppableContainers: args.droppableContainers.filter(isType('folder')) })
-  if (folderHits.length || dataOf(args.active)?.type === 'folder') return folderHits
+  const draggingFolder = dataOf(args.active)?.type === 'folder'
+  const targets = args.droppableContainers.filter(
+    (c) => isType('folder')(c) || (draggingFolder && isType('archive')(c)),
+  )
+  const folderHits = pointerWithin({ ...args, droppableContainers: targets })
+  if (folderHits.length || draggingFolder) return folderHits
   return closestCenter({ ...args, droppableContainers: args.droppableContainers.filter(isType('note')) })
 }
 

@@ -37,6 +37,7 @@ export const searchRoutes = new Hono<AppEnv>()
         title: sql<string>`ts_headline('simple', ${notes.title}, ${query}, ${titleOptions})`,
         snippet: sql<string>`ts_headline('simple', ${notes.content}, ${query}, ${snippetOptions})`,
         updatedAt: notes.updatedAt,
+        archived: sql<boolean>`${folders.archivedAt} is not null`,
       })
       .from(notes)
       .innerJoin(folders, eq(folders.id, notes.folderId))

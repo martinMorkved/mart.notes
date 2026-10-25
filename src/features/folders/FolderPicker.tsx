@@ -2,7 +2,7 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { type CSSProperties, useEffect, useMemo, useRef } from 'react'
 import type { Folder } from '@shared/types'
 import { CloseIcon } from '@/ui/icons'
-import { foldersQuery } from './queries'
+import { treeFoldersQuery } from './queries'
 import { flattenTree } from './tree'
 import './folder-picker.css'
 
@@ -20,7 +20,7 @@ type Props = {
 
 // "Move to…": pick a folder from a list, the way to move things where dragging is awkward
 export function FolderPicker({ title, currentId, hidden, allowTopLevel, onPick, onClose }: Props) {
-  const { data: folders } = useSuspenseQuery(foldersQuery)
+  const { data: folders } = useSuspenseQuery(treeFoldersQuery)
   const rows = useMemo(() => flattenTree(folders, hidden), [folders, hidden])
   const ref = useRef<HTMLDialogElement>(null)
 

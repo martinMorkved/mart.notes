@@ -6,7 +6,7 @@ import { setTaskBody } from '../../shared/schemas'
 import { parseTasks, setTask } from '../../shared/tasks'
 import type { NoteTasks } from '../../shared/types'
 import { db } from '../db'
-import { notes } from '../db/schema'
+import { folders, notes } from '../db/schema'
 import { type AppEnv, requireUser } from '../env'
 import { doneTimes, syncTaskDone } from '../taskDone'
 
@@ -26,10 +26,13 @@ export const taskRoutes = new Hono<AppEnv>()
         content: notes.content,
       })
       .from(notes)
+      // Archived folders are out of the way, and so are their tasks
+      .innerJoin(folders, eq(folders.id, notes.folderId))
       .where(
         and(
           eq(notes.userId, c.var.userId),
           isNull(notes.deletedAt),
+          isNull(folders.archivedAt),
           // Only narrows it down; the parser decides what's really a task
           or(sql`${notes.content} like '%[ ]%'`, sql`lower(${notes.content}) like '%[x]%'`),
         ),

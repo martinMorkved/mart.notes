@@ -101,6 +101,9 @@ export const folders = pgTable(
     parentId: uuid().references((): AnyPgColumn => folders.id, { onDelete: 'cascade' }),
     name: text().notNull(),
     position: sortKey().notNull(),
+    // Out of the tree but never purged. The subtree shares the timestamp like deleted_at, and
+    // parent_id and position stay, so an unarchived folder comes back where it was.
+    archivedAt: timestamp({ withTimezone: true }),
     deletedAt: timestamp({ withTimezone: true }),
     ...timestamps,
   },

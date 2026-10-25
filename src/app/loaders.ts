@@ -24,7 +24,7 @@ export async function redirectIfSignedIn() {
 
 export async function openFirstFolder() {
   const folders = await queryClient.ensureQueryData(foldersQuery)
-  const first = childrenByParent(folders).get(null)?.[0]
+  const first = childrenByParent(folders.filter((f) => !f.archivedAt)).get(null)?.[0]
   if (first) throw redirect(`/folder/${first.id}`)
   return null
 }

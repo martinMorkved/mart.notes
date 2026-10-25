@@ -5,6 +5,7 @@ export type Folder = {
   parentId: string | null
   name: string
   position: string
+  archivedAt: string | null
 }
 
 export type NoteSummary = {
@@ -58,6 +59,7 @@ export type SearchResult = {
   title: string
   snippet: string
   updatedAt: string
+  archived: boolean
 }
 
 export type NoteTitle = {

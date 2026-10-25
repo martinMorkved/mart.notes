@@ -31,6 +31,14 @@ function deletedMessage(name: string, counts: Counts) {
     : `Moved “${name}” to trash`
 }
 
+function archivedMessage(name: string, counts: Counts) {
+  return counts.notes > 0 ? `Archived “${name}” with ${plural(counts.notes, 'note')}` : `Archived “${name}”`
+}
+
+function unarchive(id: string) {
+  return api<Counts>('POST', `/folders/${id}/unarchive`)
+}
+
 export function useCreateFolder() {
   return useMutation({
     scope: folderWrites,
@@ -41,7 +49,7 @@ export function useCreateFolder() {
       const previous = snapshotFolders()
       const siblings = previous.filter((f) => f.parentId === input.parentId).sort(byPosition)
       const position = generateKeyBetween(siblings.at(-1)?.position ?? null, null)
-      queryClient.setQueryData(foldersKey, [...previous, { ...input, position }])
+      queryClient.setQueryData(foldersKey, [...previous, { ...input, position, archivedAt: null }])
       return { previous }
     },
     onError: (_error, _input, context) => restoreFolders(context),
@@ -97,6 +105,64 @@ export function useDeleteFolder() {
       queryClient.invalidateQueries({ queryKey: trashQuery.queryKey })
       queryClient.invalidateQueries({ queryKey: noteTitlesQuery.queryKey })
     },
+  })
+}
+
+export function useArchiveFolder() {
+  return useMutation({
+    scope: folderWrites,
+    mutationFn: (folder: Folder) => api<Counts>('POST', `/folders/${folder.id}/archive`),
+    onMutate: async (folder) => {
+      await queryClient.cancelQueries({ queryKey: foldersKey })
+      const previous = snapshotFolders()
+      const archived = subtreeIds(previous, folder.id)
+      const archivedAt = new Date().toISOString()
+      queryClient.setQueryData(
+        foldersKey,
+        previous.map((f) => (archived.has(f.id) && !f.archivedAt ? { ...f, archivedAt } : f)),
+      )
+      return { previous }
+    },
+    onSuccess: (counts, folder) => {
+      showToast({
+        message: archivedMessage(folder.name, counts),
+        action: {
+          label: 'Undo',
+          run: () => unarchive(folder.id).then(() => queryClient.invalidateQueries({ queryKey: foldersKey })),
+        },
+      })
+    },
+    onError: (_error, _input, context) => {
+      showToast({ message: 'Couldn’t archive the folder. Check your connection.' })
+      restoreFolders(context)
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: foldersKey }),
+  })
+}
+
+// Brings back the folders archived together with this one, and leaves any archived on their own
+export function useUnarchiveFolder() {
+  return useMutation({
+    scope: folderWrites,
+    mutationFn: (folder: Folder) => unarchive(folder.id),
+    onMutate: async (folder) => {
+      await queryClient.cancelQueries({ queryKey: foldersKey })
+      const previous = snapshotFolders()
+      const inside = subtreeIds(previous, folder.id)
+      queryClient.setQueryData(
+        foldersKey,
+        previous.map((f) =>
+          inside.has(f.id) && f.archivedAt === folder.archivedAt ? { ...f, archivedAt: null } : f,
+        ),
+      )
+      return { previous }
+    },
+    onSuccess: (_counts, folder) => showToast({ message: `“${folder.name}” is back in the tree` }),
+    onError: (_error, _input, context) => {
+      showToast({ message: 'Couldn’t unarchive the folder. Check your connection.' })
+      restoreFolders(context)
+    },
+    onSettled: () => queryClient.invalidateQueries({ queryKey: foldersKey }),
   })
 }
 
