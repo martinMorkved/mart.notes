@@ -256,12 +256,17 @@ html:active-view-transition-type(task-note-up)::view-transition-new(content) {
   animation: vt-fade-in 300ms 200ms ease-out both;
 }
 
-/* The arrow buttons: a card and its neighbour glide past each other into their new places */
+/* The arrow buttons: two cards swing round each other into their new places (swapCards.ts
+   draws the curves). Linear overall, since the easing is already in the curve. */
 html:active-view-transition-type(todo-swap)::view-transition-group(todo-moving),
 html:active-view-transition-type(todo-swap)::view-transition-group(todo-swapped) {
-  animation-duration: 340ms;
+  animation-duration: 650ms;
+  animation-timing-function: linear;
 }
 
-html:active-view-transition-type(todo-swap)::view-transition-group(todo-moving) {
-  z-index: 2;
+html:active-view-transition-type(todo-swap)::view-transition-old(todo-moving),
+html:active-view-transition-type(todo-swap)::view-transition-new(todo-moving),
+html:active-view-transition-type(todo-swap)::view-transition-old(todo-swapped),
+html:active-view-transition-type(todo-swap)::view-transition-new(todo-swapped) {
+  animation-duration: 650ms;
 }

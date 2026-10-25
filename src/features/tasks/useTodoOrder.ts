@@ -2,10 +2,9 @@ import { arrayMove } from '@dnd-kit/sortable'
 import { useState } from 'react'
 import { flushSync } from 'react-dom'
 import type { NoteTasks } from '@shared/types'
-import { runViewTransition } from '@/features/transitions/runViewTransition'
-import { combine, tagElement } from '@/features/transitions/tagElement'
 import { positionBetween } from '@/lib/positions'
 import { useMoveTaskNote } from './mutations'
+import { swapCards } from './swapCards'
 
 const keyOf = (note?: NoteTasks) => (note ? { position: note.todoPosition } : undefined)
 const card = (note: NoteTasks) => document.querySelector(`[data-task-note="${note.noteId}"]`)
@@ -30,17 +29,12 @@ export function useTodoOrder(notes: NoteTasks[]) {
     moveNote.mutate({ noteId, todoPosition })
   }
 
-  // From the arrow buttons: the card swaps places with its neighbour, and both glide there
+  // From the arrow buttons: the card swaps places with its neighbour
   function step(note: NoteTasks, by: -1 | 1) {
     const from = items.indexOf(note)
     const neighbour = items[from + by]
     if (!neighbour) return
-    const untag = combine(tagElement(card(note), 'todo-moving'), tagElement(card(neighbour), 'todo-swapped'))
-    const transition = runViewTransition({
-      types: ['todo-swap'],
-      update: () => flushSync(() => place(from, from + by)),
-    })
-    transition.finished.finally(untag)
+    swapCards(card(note), card(neighbour), () => flushSync(() => place(from, from + by)))
   }
 
   // From a drag: dropped on the spot of another card
