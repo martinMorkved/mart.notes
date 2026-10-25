@@ -2,13 +2,14 @@ import { zValidator } from '@hono/zod-validator'
 import { and, eq, isNull, or, sql } from 'drizzle-orm'
 import { Hono } from 'hono'
 import { z } from 'zod'
-import { setTaskBody } from '../../shared/schemas'
+import { idParam, moveTaskNote, setTaskBody } from '../../shared/schemas'
 import { parseTasks, setTask } from '../../shared/tasks'
 import type { NoteTasks } from '../../shared/types'
 import { db } from '../db'
 import { folders, notes } from '../db/schema'
 import { type AppEnv, requireUser } from '../env'
 import { doneTimes, syncTaskDone } from '../taskDone'
+import { placeNewTodoNotes } from '../todoOrder'
 
 const taskParams = z.object({ id: z.uuid(), index: z.coerce.number().int().min(0) })
 
@@ -23,6 +24,7 @@ export const taskRoutes = new Hono<AppEnv>()
         title: notes.title,
         folderId: notes.folderId,
         position: notes.position,
+        todoPosition: notes.todoPosition,
         content: notes.content,
       })
       .from(notes)
@@ -37,10 +39,9 @@ export const taskRoutes = new Hono<AppEnv>()
           or(sql`${notes.content} like '%[ ]%'`, sql`lower(${notes.content}) like '%[x]%'`),
         ),
       )
-      .orderBy(notes.position)
 
     const times = await doneTimes(rows.map((r) => r.noteId))
-    const result: NoteTasks[] = rows
+    const withTasks = rows
       .map(({ content, ...note }) => {
         const done = times.get(note.noteId)
         const lists = parseTasks(content).map((list) => ({
@@ -50,7 +51,22 @@ export const taskRoutes = new Hono<AppEnv>()
         return { ...note, lists }
       })
       .filter((note) => note.lists.length)
+
+    await placeNewTodoNotes(c.var.userId, withTasks)
+    const result: NoteTasks[] = withTasks
+      .map(({ position: _, todoPosition, ...note }) => ({ ...note, todoPosition: todoPosition! }))
+      .sort((a, b) => (a.todoPosition < b.todoPosition ? -1 : 1))
     return c.json(result)
+  })
+
+  // Moves a note up or down the to-do page. Its date stays, as it does for any move.
+  .patch('/notes/:id/position', zValidator('param', idParam), zValidator('json', moveTaskNote), async (c) => {
+    const [note] = await db
+      .update(notes)
+      .set({ todoPosition: c.req.valid('json').position, updatedAt: sql`${notes.updatedAt}` })
+      .where(and(eq(notes.id, c.req.param('id')), eq(notes.userId, c.var.userId), isNull(notes.deletedAt)))
+      .returning({ id: notes.id })
+    return note ? c.body(null, 204) : c.json({ error: 'Note not found' }, 404)
   })
 
   // Ticks or unticks one task. The task's text comes along, so a note edited since the page

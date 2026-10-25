@@ -1,0 +1,1 @@
+ALTER TABLE "notes" ADD COLUMN "todo_position" text collate "C";

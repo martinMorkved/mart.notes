@@ -75,7 +75,19 @@ export const CloseIcon = (props: SVGProps<SVGSVGElement>) => (
   </Icon>
 )
 
-export const ArrowLeftIcon = (props: SVGProps<SVGSVGElement>) => (
+export const ArrowUpIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon {...props}>
+    <path d="M8 13V3M4 7l4-4 4 4" />
+  </Icon>
+)
+
+export const ArrowDownIcon = (props: SVGProps<SVGSVGElement>) => (
+  <Icon {...props}>
+    <path d="M8 3v10M4 9l4 4 4-4" />
+  </Icon>
+)
+
+export const ArrowLeftIcon =(props: SVGProps<SVGSVGElement>) => (
   <Icon {...props}>
     <path d="M13 8H3M7 4L3 8l4 4" />
   </Icon>

@@ -136,6 +136,9 @@ export const notes = pgTable(
     title: text().notNull().default(''),
     content: text().notNull().default(''),
     position: sortKey().notNull(),
+    // Its place on the to-do page, which is one list in order of priority. Given when the note
+    // first shows up there, at the bottom.
+    todoPosition: sortKey(),
     deletedAt: timestamp({ withTimezone: true }),
     ...timestamps,
     search: tsvector().generatedAlwaysAs(

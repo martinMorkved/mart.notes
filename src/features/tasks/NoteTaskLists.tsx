@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Link } from 'react-router'
 import { subtasksOf, type Task } from '@shared/tasks'
 import type { NoteTasks } from '@shared/types'
@@ -18,10 +19,12 @@ type Props = {
   // a note that came back from the completed ones starts with its done tasks showing
   doneOpen: boolean
   onRise: (noteId: string) => void
+  // beside the title, like the buttons that move the note up and down
+  controls?: ReactNode
 }
 
 // One note's checklists, each under the heading it has in the note
-export function NoteTaskLists({ note, showing, onTicked, doneOpen, onRise }: Props) {
+export function NoteTaskLists({ note, showing, onTicked, doneOpen, onRise, controls }: Props) {
   const setTask = useSetTask()
   const click = useTransitionClick()
   const to = `/note/${note.noteId}`
@@ -59,11 +62,14 @@ export function NoteTaskLists({ note, showing, onTicked, doneOpen, onRise }: Pro
 
   return (
     <article className="task-note" data-task-note={note.noteId}>
-      <h3>
-        <Link to={to} onPointerEnter={() => preload(to)} onFocus={() => preload(to)} onClick={click(to, linkedNote)}>
-          {note.title || 'Untitled'}
-        </Link>
-      </h3>
+      <div className="task-note-head">
+        <h3>
+          <Link to={to} onPointerEnter={() => preload(to)} onFocus={() => preload(to)} onClick={click(to, linkedNote)}>
+            {note.title || 'Untitled'}
+          </Link>
+        </h3>
+        {controls}
+      </div>
       {note.lists.map((list) => (
         <TaskListBlock
           key={list.tasks[0].index}

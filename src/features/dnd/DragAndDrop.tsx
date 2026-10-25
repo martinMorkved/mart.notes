@@ -4,11 +4,7 @@ import {
   DndContext,
   type DragMoveEvent,
   DragOverlay,
-  MouseSensor,
   pointerWithin,
-  TouchSensor,
-  useSensor,
-  useSensors,
 } from '@dnd-kit/core'
 import { type ReactNode, useState } from 'react'
 import { type DragData, type DropData, dataOf } from './dragData'
@@ -16,6 +12,7 @@ import { DragPreview } from './DragPreview'
 import { dropTargetOf } from './dropTarget'
 import { type DropTarget, DropTargetContext } from './DropTargetContext'
 import { suppressNextClick } from './suppressClick'
+import { useDragSensors } from './useDragSensors'
 import './dnd.css'
 
 const isType = (type: DropData['type']) => (c: { data: { current?: unknown } }) =>
@@ -36,11 +33,7 @@ const collision: CollisionDetection = (args) => {
 export function DragAndDrop({ children }: { children: ReactNode }) {
   const [dragged, setDragged] = useState<DragData | null>(null)
   const [target, setTarget] = useState<DropTarget>(null)
-  const sensors = useSensors(
-    useSensor(MouseSensor, { activationConstraint: { distance: 6 } }),
-    // A long press, so a swipe still scrolls
-    useSensor(TouchSensor, { activationConstraint: { delay: 250, tolerance: 8 } }),
-  )
+  const sensors = useDragSensors()
 
   function track(event: DragMoveEvent) {
     const next = dropTargetOf(event)

@@ -78,6 +78,7 @@ export type NoteTasks = {
   noteId: string
   title: string
   folderId: string
-  position: string
+  // the note's place on the to-do page, not in its folder
+  todoPosition: string
   lists: TaskList[]
 }

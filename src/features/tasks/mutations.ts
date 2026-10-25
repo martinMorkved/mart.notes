@@ -25,6 +25,28 @@ function tick(list: NoteTasks[] | undefined, { note, index, checked, subtasks = 
   )
 }
 
+const byTodoPosition = (a: NoteTasks, b: NoteTasks) => (a.todoPosition < b.todoPosition ? -1 : 1)
+
+// A note's new place in the priority order of the to-do page
+export function useMoveTaskNote() {
+  return useMutation({
+    mutationFn: ({ noteId, todoPosition }: { noteId: string; todoPosition: string }) =>
+      api('PATCH', `/tasks/notes/${noteId}/position`, { position: todoPosition }),
+    onMutate: async ({ noteId, todoPosition }) => {
+      await queryClient.cancelQueries({ queryKey: tasksQuery.queryKey })
+      const previous = queryClient.getQueryData(tasksQuery.queryKey)
+      queryClient.setQueryData(tasksQuery.queryKey, (list) =>
+        list?.map((n) => (n.noteId === noteId ? { ...n, todoPosition } : n)).sort(byTodoPosition),
+      )
+      return { previous }
+    },
+    onError: (_error, _input, context) => {
+      queryClient.setQueryData(tasksQuery.queryKey, context?.previous)
+      showToast({ message: 'Couldn’t move the note. Check your connection.' })
+    },
+  })
+}
+
 export function useSetTask() {
   return useMutation({
     // One at a time: each tick reads the note and writes it back, so two at once could undo one

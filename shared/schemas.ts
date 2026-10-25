@@ -48,6 +48,8 @@ export const moveFolder = z.object({
   position,
 })
 
+export const moveTaskNote = z.object({ position })
+
 export type MoveNote = z.infer<typeof moveNote>
 export type MoveFolder = z.infer<typeof moveFolder>
 
