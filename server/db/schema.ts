@@ -1,9 +1,11 @@
 import { sql } from 'drizzle-orm'
 import {
   type AnyPgColumn,
+  bigint,
   boolean,
   customType,
   index,
+  integer,
   pgTable,
   primaryKey,
   text,
@@ -88,6 +90,14 @@ export const verification = pgTable(
   },
   (t) => [index().on(t.identifier)],
 )
+
+// Sign-in attempts per IP. In the database, since serverless instances don't share memory.
+export const rateLimit = pgTable('rate_limit', {
+  id: text().primaryKey(),
+  key: text().notNull().unique(),
+  count: integer().notNull(),
+  lastRequest: bigint({ mode: 'number' }).notNull(),
+})
 
 // App
 

@@ -68,6 +68,10 @@ export const auth = betterAuth({
     expiresIn: 60 * 60 * 24 * 60,
     updateAge: 60 * 60 * 24,
   },
+  // On in production only. Sign-in and sign-up get Better Auth's stricter default rules.
+  rateLimit: { storage: 'database' },
+  // Vercel sets this to the client's real IP and overwrites whatever the client sent
+  advanced: { ipAddress: { ipAddressHeaders: ['x-forwarded-for'] } },
   databaseHooks: {
     user: {
       create: {
