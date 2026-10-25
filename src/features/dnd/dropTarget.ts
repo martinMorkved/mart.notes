@@ -1,6 +1,6 @@
 import type { DragEndEvent, DragMoveEvent } from '@dnd-kit/core'
+import { subtreeIds } from '@/features/folders/hierarchy'
 import { foldersQuery } from '@/features/folders/queries'
-import { subtreeIds } from '@/features/folders/tree'
 import { queryClient } from '@/lib/queryClient'
 import { dataOf, folderDropZone } from './dragData'
 import type { DropTarget } from './DropTargetContext'

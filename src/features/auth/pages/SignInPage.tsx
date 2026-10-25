@@ -1,13 +1,13 @@
 import { useState } from 'react'
 import { Link } from 'react-router'
-import { AuthField } from './AuthField'
-import { AuthShell } from './AuthShell'
-import { authClient } from './authClient'
-import { authErrorMessage } from './authErrors'
-import { CheckInbox } from './CheckInbox'
-import { FormError } from './FormError'
-import { useEnterApp } from './useEnterApp'
-import { useFormSubmit } from './useFormSubmit'
+import { authClient } from '../authClient'
+import { authErrorMessage } from '../authErrors'
+import { AuthField } from '../components/AuthField'
+import { AuthShell } from '../components/AuthShell'
+import { CheckInbox } from '../components/CheckInbox'
+import { FormError } from '../components/FormError'
+import { useEnterApp } from '../useEnterApp'
+import { useFormSubmit } from '../useFormSubmit'
 
 export function SignInPage() {
   const enterApp = useEnterApp()

@@ -3,8 +3,8 @@ import type { Folder } from '@shared/types'
 import { dataOf } from '@/features/dnd/dragData'
 import { dropTargetOf } from '@/features/dnd/dropTarget'
 import { useMoveNote } from '@/features/notes/mutations'
-import { useMoveFolder } from './mutations'
-import { placeFolder } from './tree'
+import { placeFolder } from '../hierarchy'
+import { useMoveFolder } from '../mutations'
 
 // Drops on the folder tree: a note goes into the folder, a folder next to it or inside it
 export function useTreeDrops(folders: Folder[], onExpand: (id: string) => void) {

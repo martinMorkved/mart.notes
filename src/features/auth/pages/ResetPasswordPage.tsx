@@ -1,12 +1,12 @@
 import { useState } from 'react'
 import { useSearchParams } from 'react-router'
-import { AuthField } from './AuthField'
-import { AuthMessage } from './AuthMessage'
-import { AuthShell } from './AuthShell'
-import { authClient } from './authClient'
-import { authErrorMessage } from './authErrors'
-import { FormError } from './FormError'
-import { useFormSubmit } from './useFormSubmit'
+import { authClient } from '../authClient'
+import { authErrorMessage } from '../authErrors'
+import { AuthField } from '../components/AuthField'
+import { AuthMessage } from '../components/AuthMessage'
+import { AuthShell } from '../components/AuthShell'
+import { FormError } from '../components/FormError'
+import { useFormSubmit } from '../useFormSubmit'
 
 export function ResetPasswordPage() {
   const [params] = useSearchParams()

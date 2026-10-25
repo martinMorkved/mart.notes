@@ -1,7 +1,7 @@
 import { redirect, type LoaderFunctionArgs } from 'react-router'
 import { sessionQuery } from '@/features/auth/authClient'
+import { childrenByParent } from '@/features/folders/hierarchy'
 import { foldersQuery } from '@/features/folders/queries'
-import { childrenByParent } from '@/features/folders/tree'
 import { folderNotesQuery, noteQuery } from '@/features/notes/queries'
 import { tasksQuery } from '@/features/tasks/queries'
 import { trashQuery } from '@/features/trash/queries'

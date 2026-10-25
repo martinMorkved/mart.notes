@@ -8,8 +8,8 @@ import { plural } from '@/lib/text'
 import { PlusIcon } from '@/ui/icons'
 import { PageHeader } from '@/ui/PageHeader'
 import { FolderTrail } from './FolderTrail'
+import { ancestorsOf } from './hierarchy'
 import { foldersQuery } from './queries'
-import { ancestorsOf } from './tree'
 
 export function FolderView() {
   const { id } = useParams() as { id: string }

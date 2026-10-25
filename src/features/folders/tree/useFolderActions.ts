@@ -2,8 +2,8 @@ import { useState } from 'react'
 import { useNavigate } from 'react-router'
 import type { Folder } from '@shared/types'
 import { useArchive } from '@/features/archive/useArchive'
-import { useCreateFolder, useDeleteFolder, useMoveFolder, useRenameFolder } from './mutations'
-import { placeFolder, subtreeIds } from './tree'
+import { placeFolder, subtreeIds } from '../hierarchy'
+import { useCreateFolder, useDeleteFolder, useMoveFolder, useRenameFolder } from '../mutations'
 
 type Options = {
   folders: Folder[]

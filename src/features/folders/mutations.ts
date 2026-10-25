@@ -7,8 +7,8 @@ import { api } from '@/lib/api'
 import { queryClient } from '@/lib/queryClient'
 import { plural } from '@/lib/text'
 import { showToast } from '@/ui/toast'
+import { byPosition, subtreeIds } from './hierarchy'
 import { foldersQuery } from './queries'
-import { byPosition, subtreeIds } from './tree'
 
 const foldersKey = foldersQuery.queryKey
 const folderWrites = { id: 'folder-writes' }

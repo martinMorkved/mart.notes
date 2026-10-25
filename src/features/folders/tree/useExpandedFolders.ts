@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Folder } from '@shared/types'
-import { ancestorsOf } from './tree'
+import { ancestorsOf } from '../hierarchy'
 
 const STORAGE_KEY = 'expanded-folders'
 

@@ -1,6 +1,7 @@
 import { Link } from 'react-router'
 import type { Folder } from '@shared/types'
 import { useFolderClick } from '@/features/transitions/useFolderClick'
+import './trail.css'
 
 export function FolderTrail({ folders }: { folders: Folder[] }) {
   const folderClick = useFolderClick()

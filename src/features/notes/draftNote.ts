@@ -1,6 +1,6 @@
 import { generateKeyBetween } from 'fractional-indexing'
 import type { Note } from '@shared/types'
-import { byPosition } from '@/features/folders/tree'
+import { byPosition } from '@/features/folders/hierarchy'
 import { queryClient } from '@/lib/queryClient'
 import { folderNotesQuery } from './queries'
 

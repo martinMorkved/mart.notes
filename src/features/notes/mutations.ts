@@ -1,7 +1,7 @@
 import { useMutation } from '@tanstack/react-query'
 import type { UpdateNote } from '@shared/schemas'
 import type { Counts, Note, NoteSummary } from '@shared/types'
-import { byPosition } from '@/features/folders/tree'
+import { byPosition } from '@/features/folders/hierarchy'
 import { noteTitlesQuery } from '@/features/links/queries'
 import { refreshAfterRestore, trashQuery } from '@/features/trash/queries'
 import { api } from '@/lib/api'

@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
-import { sessionQuery } from './authClient'
-import { useSignOut } from './useSignOut'
+import { sessionQuery } from '../authClient'
+import { useSignOut } from '../useSignOut'
 
 export function AccountMenu() {
   const { data: session } = useQuery(sessionQuery)

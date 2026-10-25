@@ -2,8 +2,8 @@ import { useSuspenseQuery } from '@tanstack/react-query'
 import { type CSSProperties, useEffect, useMemo, useRef } from 'react'
 import type { Folder } from '@shared/types'
 import { CloseIcon } from '@/ui/icons'
-import { treeFoldersQuery } from './queries'
-import { flattenTree } from './tree'
+import { flattenTree } from '../hierarchy'
+import { treeFoldersQuery } from '../queries'
 import './folder-picker.css'
 
 type Props = {

@@ -1,0 +1,22 @@
+.trail {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem 0;
+  font: 400 0.75rem/1.4 var(--mono);
+  letter-spacing: 0.04em;
+}
+
+.trail a {
+  color: var(--ink-faint);
+  text-decoration: none;
+}
+
+.trail a:hover {
+  color: var(--ink);
+}
+
+.trail a::after {
+  content: '/';
+  margin: 0 0.5rem;
+  color: var(--rule);
+}

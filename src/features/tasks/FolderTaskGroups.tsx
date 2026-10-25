@@ -1,6 +1,6 @@
 import { Link } from 'react-router'
 import type { Folder, NoteTasks } from '@shared/types'
-import { ancestorsOf, flattenTree } from '@/features/folders/tree'
+import { ancestorsOf, flattenTree } from '@/features/folders/hierarchy'
 import { useFolderClick } from '@/features/transitions/useFolderClick'
 import { NoteTaskLists } from './NoteTaskLists'
 import type { Showing } from './visibleTasks'

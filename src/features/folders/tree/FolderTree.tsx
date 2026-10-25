@@ -1,15 +1,15 @@
 import { useSuspenseQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { PlusIcon } from '@/ui/icons'
-import { FolderPicker } from './FolderPicker'
+import { childrenByParent, subtreeIds } from '../hierarchy'
+import { FolderPicker } from '../picker/FolderPicker'
+import { treeFoldersQuery } from '../queries'
 import { FolderTreeContext } from './FolderTreeContext'
 import { FolderTreeLevel } from './FolderTreeLevel'
-import { treeFoldersQuery } from './queries'
-import { childrenByParent, subtreeIds } from './tree'
 import { useExpandedFolders } from './useExpandedFolders'
 import { useFolderActions } from './useFolderActions'
 import { useTreeDrops } from './useTreeDrops'
-import './folders.css'
+import './tree.css'
 
 export function FolderTree({ activeFolderId }: { activeFolderId: string | null }) {
   const { data: folders } = useSuspenseQuery(treeFoldersQuery)
